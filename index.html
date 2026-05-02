@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bugün Motive misin?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F1EC;--surface:#FDFCFA;--surface2:#EDEBE6;
+  --border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.13);
+  --text:#1C1A17;--muted:#8A8279;
+  --accent:#2A5240;--accent-l:#E6EFE9;--accent-t:#1A3828;
+  --green:#2A5240;--green-bg:#E6EFE9;
+  --yellow:#7A5010;--yellow-bg:#FDF3E3;
+  --red:#7A1A1A;--red-bg:#FDE8E8;
+  --gold:#8B6914;--gold-bg:#FDF6E3;
+  --r:14px;--rs:8px;--sh:0 2px 20px rgba(0,0,0,.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;}
+
+/* LOGIN */
+#s-login{align-items:center;justify-content:center;padding:2rem 1rem;}
+.login-wrap{width:100%;max-width:380px;}
+.brand{text-align:center;margin-bottom:2.5rem;}
+.brand-mark{width:52px;height:52px;background:var(--accent);border-radius:15px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;}
+.brand-mark svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;}
+.brand h1{font-family:'Instrument Serif',serif;font-size:30px;font-weight:400;letter-spacing:-.5px;}
+.brand p{color:var(--muted);font-size:13px;margin-top:4px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;box-shadow:var(--sh);}
+.lbl{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:5px;}
+.inp{width:100%;padding:9px 13px;border:1px solid var(--border2);border-radius:var(--rs);background:var(--surface);color:var(--text);font-size:14px;font-family:inherit;margin-bottom:1rem;outline:none;transition:border-color .15s,box-shadow .15s;}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(42,82,64,.1);}
+.btn-main{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-family:inherit;font-weight:500;cursor:pointer;transition:background .15s;}
+.btn-main:hover{background:var(--accent-t);}
+.err-box{background:var(--red-bg);color:var(--red);font-size:13px;padding:8px 12px;border-radius:var(--rs);margin-bottom:.75rem;display:none;}
+.hint{text-align:center;font-size:12px;color:var(--muted);margin-top:1.25rem;background:var(--surface2);border-radius:var(--rs);padding:10px;line-height:1.9;}
+.hint code{background:rgba(0,0,0,.07);border-radius:4px;padding:1px 5px;font-family:monospace;}
+
+/* EMPLOYEE */
+#s-emp{flex-direction:column;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:.9rem 1.5rem;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;}
+.topbar-title{font-family:'Instrument Serif',serif;font-size:18px;font-weight:400;flex:1;}
+.ghost-btn{padding:6px 13px;background:transparent;border:1px solid var(--border2);border-radius:var(--rs);color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;transition:background .15s;}
+.ghost-btn:hover{background:var(--surface2);color:var(--text);}
+.tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;}
+.tab{padding:10px 14px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-body{flex:1;padding:1.5rem;max-width:640px;width:100%;margin:0 auto;overflow-y:auto;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* CHAT */
+.chat-prog{display:flex;gap:5px;margin-bottom:1.25rem;}
+.pd{height:3px;flex:1;background:var(--border2);border-radius:2px;transition:background .3s;}
+.pd.done{background:var(--accent);}
+.pd.cur{background:var(--accent);opacity:.45;}
+.chat-msgs{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;min-height:180px;}
+.msg-bot{background:var(--surface);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:11px 15px;font-size:14px;max-width:85%;align-self:flex-start;line-height:1.65;animation:pop .22s ease;box-shadow:var(--sh);}
+.msg-user{background:var(--accent);color:#fff;border-radius:14px 4px 14px 14px;padding:10px 15px;font-size:14px;max-width:85%;align-self:flex-end;animation:pop .18s ease;}
+@keyframes pop{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.typing{display:flex;gap:4px;padding:14px 16px;align-items:center;}
+.td{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:tdb 1.1s infinite;}
+.td:nth-child(2){animation-delay:.18s}.td:nth-child(3){animation-delay:.36s}
+@keyframes tdb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.quick-wrap{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.75rem;}
+.qb{padding:7px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;font-size:13px;font-family:inherit;color:var(--text);cursor:pointer;transition:all .15s;}
+.qb:hover{background:var(--accent-l);border-color:var(--accent);color:var(--accent-t);}
+.chat-row{display:flex;gap:8px;}
+.chat-inp{flex:1;padding:9px 14px;border:1px solid var(--border2);border-radius:22px;font-size:14px;font-family:inherit;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;}
+.chat-inp:focus{border-color:var(--accent);}
+.send-btn{width:38px;height:38px;background:var(--accent);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;}
+.send-btn:hover{background:var(--accent-t);}
+.send-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+
+/* RESULT */
+.result-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;text-align:center;animation:pop .3s ease;box-shadow:var(--sh);margin-bottom:1rem;}
+.result-icon{font-size:40px;margin-bottom:.75rem;}
+.result-title{font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;margin-bottom:.4rem;}
+.result-sub{font-size:13px;color:var(--muted);max-width:320px;margin:0 auto;}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;margin-top:.75rem;}
+.pill-dot{width:7px;height:7px;border-radius:50%;}
+.pill-green{background:var(--green-bg);color:var(--green);}.pill-green .pill-dot{background:var(--green);}
+.pill-yellow{background:var(--yellow-bg);color:var(--yellow);}.pill-yellow .pill-dot{background:var(--yellow);}
+.pill-red{background:var(--red-bg);color:var(--red);}.pill-red .pill-dot{background:var(--red);}
+
+/* REWARDS */
+.reward-box{background:var(--gold-bg);border:1px solid rgba(139,105,20,.2);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem;animation:pop .4s ease;}
+.reward-hd{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.75rem;}
+.reward-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.reward-item{background:rgba(255,255,255,.7);border:1px solid rgba(139,105,20,.15);border-radius:var(--rs);padding:.75rem;text-align:center;}
+.reward-emoji{font-size:22px;display:block;margin-bottom:4px;}
+.reward-name{font-size:11px;font-weight:500;color:var(--gold);}
+.reward-desc{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.streak-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.6);border-radius:var(--rs);padding:.6rem .9rem;margin-top:.75rem;}
+.streak-dots{display:flex;gap:4px;flex:1;}
+.streak-dot{width:18px;height:18px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;}
+.streak-dot.lit{background:var(--gold-bg);border-color:rgba(139,105,20,.4);}
+.streak-lbl{font-size:11px;color:var(--gold);font-weight:500;white-space:nowrap;}
+
+/* AI BOX */
+.ai-box{background:var(--accent-l);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem;animation:pop .35s ease;}
+.ai-hd{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:500;color:var(--accent-t);margin-bottom:.75rem;letter-spacing:.06em;text-transform:uppercase;}
+.ai-hd svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;}
+.ai-tip{font-size:13px;color:var(--accent-t);line-height:1.65;padding:9px 0;border-bottom:1px solid rgba(42,82,64,.12);}
+.ai-tip:last-child{border-bottom:none;padding-bottom:0;}
+.ai-tip strong{font-weight:500;}
+.ai-loading{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:.5rem 0;}
+
+/* HISTORY */
+.period-tabs{display:flex;margin-bottom:1.25rem;background:var(--surface2);border-radius:var(--rs);padding:3px;}
+.pt{flex:1;text-align:center;padding:6px;font-size:12px;font-weight:500;border-radius:6px;cursor:pointer;color:var(--muted);transition:all .15s;}
+.pt.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.07);}
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--sh);}
+.chart-lbl{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem;}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem;}
+.stat-mini{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:.75rem;text-align:center;box-shadow:var(--sh);}
+.stat-num{font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;line-height:1;}
+.stat-lbl2{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.04em;}
+.stat-num.g{color:var(--green)}.stat-num.y{color:var(--yellow)}.stat-num.r{color:var(--red)}.stat-num.gold{color:var(--gold)}
+.hist-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.hist-item:last-child{border-bottom:none;}
+.hist-date{font-size:12px;color:var(--muted);width:80px;flex-shrink:0;}
+.hist-bar-wrap{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.hist-bar{height:100%;border-radius:3px;}
+.tag{border-radius:20px;padding:3px 10px;font-size:11px;font-weight:500;white-space:nowrap;}
+.tag-g{background:var(--green-bg);color:var(--green);}
+.tag-y{background:var(--yellow-bg);color:var(--yellow);}
+.tag-r{background:var(--red-bg);color:var(--red);}
+.tag-w{background:var(--surface2);color:var(--muted);}
+.no-data{text-align:center;padding:2.5rem;color:var(--muted);font-size:13px;}
+.no-data strong{display:block;font-size:18px;margin-bottom:.4rem;color:var(--text);}
+
+/* BADGES section in history */
+.badges-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--sh);}
+.badges-hd{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem;}
+.badges-grid{display:flex;gap:10px;flex-wrap:wrap;}
+.badge-item{display:flex;flex-direction:column;align-items:center;gap:4px;width:60px;}
+.badge-circle{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid transparent;}
+.badge-circle.earned{background:var(--gold-bg);border-color:rgba(139,105,20,.3);}
+.badge-circle.locked{background:var(--surface2);filter:grayscale(1);opacity:.4;}
+.badge-lbl{font-size:10px;color:var(--muted);text-align:center;line-height:1.3;}
+
+/* ADMIN */
+#s-admin{flex-direction:column;}
+.admin-body{flex:1;max-width:760px;width:100%;margin:0 auto;padding:1.5rem;}
+.admin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;}
+.as-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;text-align:center;box-shadow:var(--sh);}
+.as-num{font-family:'Instrument Serif',serif;font-size:38px;font-weight:400;line-height:1;margin-bottom:5px;}
+.as-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.as-num.g{color:var(--green)}.as-num.y{color:var(--yellow)}.as-num.r{color:var(--red)}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:1rem;box-shadow:var(--sh);}
+.panel-hd{padding:.85rem 1.25rem;border-bottom:1px solid var(--border);font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:space-between;}
+.emp-row{display:flex;align-items:center;gap:11px;padding:11px 1.25rem;border-bottom:1px solid var(--border);transition:background .1s;}
+.emp-row:last-child{border-bottom:none;}
+.emp-row:hover{background:var(--bg);}
+.ava{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;}
+.emp-name{font-size:14px;font-weight:500;}.emp-user{font-size:11px;color:var(--muted);}
+.add-form{padding:1.1rem 1.25rem;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;}
+.fg{flex:1;min-width:120px;}.fg .lbl{margin-bottom:4px;}
+.fg .inp{margin-bottom:0;padding:8px 11px;font-size:13px;}
+.add-btn{padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-family:inherit;font-weight:500;cursor:pointer;height:36px;align-self:flex-end;white-space:nowrap;transition:background .15s;}
+.add-btn:hover{background:var(--accent-t);}
+.trend-wrap{padding:1.25rem;}
+.trend-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem;}
+.etr-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.etr-name{font-size:13px;width:110px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.etr-bars{display:flex;gap:3px;flex:1;}
+.etr-dot{width:16px;height:16px;border-radius:4px;flex-shrink:0;}
+.etr-dot.g{background:var(--green-bg);border:1px solid var(--green);}
+.etr-dot.y{background:var(--yellow-bg);border:1px solid var(--yellow);}
+.etr-dot.r{background:var(--red-bg);border:1px solid var(--red);}
+.etr-dot.e{background:var(--surface2);border:1px solid var(--border2);}
+.note-strip{background:var(--accent-l);border-left:3px solid var(--accent);border-radius:0 var(--rs) var(--rs) 0;padding:10px 14px;font-size:12px;color:var(--accent-t);line-height:1.5;margin:.75rem 1.25rem;}
+@media(max-width:500px){
+  .admin-stats{gap:7px;}.as-num{font-size:28px;}.admin-body,.tab-body{padding:1rem;}
+  .topbar{padding:.9rem 1rem;}.stat-row{grid-template-columns:repeat(2,1fr);}
+  .reward-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen active">
+  <div class="login-wrap">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      <h1>Bugün Motive misin?</h1>
+      <p>İş yerinde psikolojik refah takibi</p>
+    </div>
+    <div class="card">
+      <label class="lbl">Kullanıcı adı</label>
+      <input class="inp" id="lu" placeholder="ad.soyad" autocomplete="username"/>
+      <label class="lbl">Şifre</label>
+      <input class="inp" type="password" id="lp" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <div class="err-box" id="lerr">Kullanıcı adı veya şifre hatalı.</div>
+      <button class="btn-main" onclick="doLogin()">Giriş yap</button>
+    </div>
+    <div class="hint">
+      <strong>Demo hesaplar</strong><br>
+      Çalışan: <code>ali.yilmaz</code> / <code>1234</code><br>
+      Yönetici: <code>yonetici</code> / <code>admin123</code>
+    </div>
+  </div>
+</div>
+
+<!-- EMPLOYEE -->
+<div id="s-emp" class="screen">
+  <div class="topbar">
+    <span class="topbar-title" id="emp-title">Bugün Motive misin?</span>
+    <span id="streak-badge" style="font-size:12px;color:var(--gold);font-weight:500;"></span>
+    <button class="ghost-btn" onclick="logout()">Çıkış</button>
+  </div>
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('t-check',this)">Günlük kontrol</div>
+    <div class="tab" onclick="switchTab('t-history',this)">Geçmişim</div>
+    <div class="tab" onclick="switchTab('t-badges',this)">Rozetler</div>
+  </div>
+  <div class="tab-body">
+    <div class="tab-panel active" id="t-check">
+      <div class="chat-prog" id="chat-prog"></div>
+      <div class="chat-msgs" id="chat-area"></div>
+      <div id="result-area" style="display:none;"></div>
+      <div id="chat-footer">
+        <div class="quick-wrap" id="quick-btns"></div>
+        <div class="chat-row">
+          <input class="chat-inp" id="chat-inp" placeholder="Yanıtınızı yazın…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+          <button class="send-btn" onclick="sendMsg()">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="tab-panel" id="t-history">
+      <div class="period-tabs">
+        <div class="pt active" onclick="setPeriod('week',this)">Bu hafta</div>
+        <div class="pt" onclick="setPeriod('month',this)">Bu ay</div>
+        <div class="pt" onclick="setPeriod('year',this)">Bu yıl</div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-lbl" id="chart-lbl">Son 7 günlük durum</div>
+        <canvas id="moodChart" height="140"></canvas>
+      </div>
+      <div class="stat-row" id="stat-row"></div>
+      <div id="hist-list"></div>
+    </div>
+    <div class="tab-panel" id="t-badges">
+      <div class="badges-wrap">
+        <div class="badges-hd">Kazanılan rozetler</div>
+        <div class="badges-grid" id="badges-grid"></div>
+      </div>
+      <div class="chart-wrap" id="points-wrap">
+        <div class="chart-lbl">Puan geçmişi</div>
+        <canvas id="pointsChart" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="s-admin" class="screen">
+  <div class="topbar">
+    <span class="topbar-title">Yönetici paneli</span>
+    <span style="font-size:12px;color:var(--muted);flex:1;padding-left:8px;" id="admin-date"></span>
+    <button class="ghost-btn" onclick="logout()">Çıkış</button>
+  </div>
+  <div class="admin-body">
+    <div class="admin-stats">
+      <div class="as-card"><div class="as-num g" id="cnt-g">0</div><div class="as-lbl">İyi durumda</div></div>
+      <div class="as-card"><div class="as-num y" id="cnt-y">0</div><div class="as-lbl">Orta</div></div>
+      <div class="as-card"><div class="as-num r" id="cnt-r">0</div><div class="as-lbl">Dikkat</div></div>
+    </div>
+    <div class="note-strip">
+      Sorular dolaylı ve davranışsal psikoloji teknikleriyle tasarlanmıştır. Kişiler farkında olmadan gerçek durumlarını yansıtır. Düşük puan = kötü anlamına gelmez; yöneticiye sadece "destek gereken" sinyali verir.
+    </div>
+    <div class="panel">
+      <div class="panel-hd"><span>Bugünkü durumlar</span><span class="tag tag-w" id="emp-count-tag"></span></div>
+      <div id="emp-list"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd">Son 7 gün — durum özeti</div>
+      <div class="trend-wrap" id="trend-wrap"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd">Yeni çalışan ekle</div>
+      <div class="add-form">
+        <div class="fg"><label class="lbl">Ad Soyad</label><input class="inp" id="nn" placeholder="Ayşe Demir"/></div>
+        <div class="fg"><label class="lbl">Kullanıcı adı</label><input class="inp" id="nu" placeholder="ayse.demir"/></div>
+        <div class="fg"><label class="lbl">Şifre</label><input class="inp" type="password" id="np" placeholder="••••••"/></div>
+        <button class="add-btn" onclick="addEmp()">+ Ekle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+/* ═══════════════════════════════════════
+   KULLANICILARA NEDEN YALAN SÖYLEYEMEZLER?
+   ═══════════════════════════════════════
+   1. Sorular doğrudan "nasılsın?" değil — davranış tabanlı:
+      "Kahvaltı yapma ihtiyacı hissettiniz mi?" gibi fizyolojik göstergeler
+   2. Projeksiyon soruları: "Bir arkadaşınız böyle hissetseydi ne yapardı?"
+      Kişi kendisi hakkında değil başkası hakkında konuşuyor gibi hisseder, daha dürüst olur
+   3. Geçmişe referans: "Dün akşam yaptığınız son şey neydi?" — soyut değil somut
+   4. Nötr etiketleme: Hiçbir yanıt "kötü" sayılmaz, sistem bunu kullanıcıya söylemez
+   5. Ödül sistemi: Düşük puan verse de rozet kazanabilir (dürüstlük rozeti gibi)
+      → "Doğruyu söylemeyi" teşvik eder
+*/
+
+/* ═══ USERS ═══ */
+const USERS={
+  yonetici:{pass:'admin123',role:'admin',name:'Yönetici'},
+  'ali.yilmaz':{pass:'1234',role:'emp',name:'Ali Yılmaz',color:'#C8DFC0'},
+  'selin.kaya':{pass:'1234',role:'emp',name:'Selin Kaya',color:'#C0D4DF'},
+  'mehmet.oz':{pass:'1234',role:'emp',name:'Mehmet Öz',color:'#DFDAC0'},
+};
+const ACOLORS=['#C8DFC0','#C0D4DF','#DFDAC0','#DFC0C0','#C0CEDF','#D5C0DF'];
+let acIdx=0;
+
+/* ═══ STORAGE ═══ */
+function getHist(u){try{return JSON.parse(localStorage.getItem('bm_'+u)||'[]');}catch{return[];}}
+function saveHist(u,arr){localStorage.setItem('bm_'+u,JSON.stringify(arr));}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+
+function seedDemo(u){
+  if(getHist(u).length>2)return;
+  const arr=[];
+  for(let i=29;i>=1;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const s=parseFloat((Math.random()*2-1).toFixed(2));
+    const pts=Math.round((s+1)/2*40)+Math.round(Math.random()*20);
+    arr.push({date:d.toISOString().slice(0,10),score:s,status:s>=.3?'green':s>=-.3?'yellow':'red',points:pts});
+  }
+  saveHist(u,arr);
+}
+
+/* ═══ POINTS & BADGES ═══ */
+function calcPoints(score,streak){
+  // puanlar durumdan değil KATILIM + devamlılıktan gelir
+  // → yalan söylemek için teşvik kalmaz
+  const base=30; // her gün giriş = 30 puan
+  const streakBonus=Math.min(streak*5,50);
+  const variationBonus=10; // ne cevap verse versin bonus alır
+  return base+streakBonus+variationBonus;
+}
+
+function getStreak(hist){
+  if(!hist.length)return 0;
+  let streak=0;
+  const today=new Date();
+  for(let i=0;i<30;i++){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    if(hist.find(h=>h.date===ds)){streak++;}else break;
+  }
+  return streak;
+}
+
+function getTotalPoints(hist){return hist.reduce((a,h)=>a+(h.points||0),0);}
+
+const ALL_BADGES=[
+  {id:'first',emoji:'🌱',name:'İlk adım',desc:'İlk check-in',check:(h)=>h.length>=1},
+  {id:'streak3',emoji:'🔥',name:'3 gün seri',desc:'3 gün üst üste',check:(h)=>getStreak(h)>=3},
+  {id:'streak7',emoji:'⚡',name:'1 hafta seri',desc:'7 gün üst üste',check:(h)=>getStreak(h)>=7},
+  {id:'streak14',emoji:'🌟',name:'2 hafta',desc:'14 gün üst üste',check:(h)=>getStreak(h)>=14},
+  {id:'streak30',emoji:'🏆',name:'1 ay seri',desc:'30 gün üst üste',check:(h)=>getStreak(h)>=30},
+  {id:'honest',emoji:'💬',name:'Dürüst yürek',desc:'5 farklı yanıt tonu',check:(h)=>{
+    const g=h.filter(x=>x.status==='green').length;
+    const y=h.filter(x=>x.status==='yellow').length;
+    const r=h.filter(x=>x.status==='red').length;
+    return g>0&&y>0&&r>0;
+  }},
+  {id:'pts100',emoji:'💎',name:'100 puan',desc:'Toplam 100 puan',check:(h)=>getTotalPoints(h)>=100},
+  {id:'pts500',emoji:'🎯',name:'500 puan',desc:'Toplam 500 puan',check:(h)=>getTotalPoints(h)>=500},
+  {id:'week5',emoji:'📅',name:'5 gün aktif',desc:'Bu hafta 5 gün',check:(h)=>{
+    const today=new Date();let cnt=0;
+    for(let i=0;i<7;i++){const d=new Date(today);d.setDate(d.getDate()-i);if(h.find(x=>x.date===d.toISOString().slice(0,10)))cnt++;}
+    return cnt>=5;
+  }},
+];
+
+/* ═══════════════════════════════════════
+   SORULAR: Davranışsal & Projeksiyonel
+   Her soru neden yanıltamaz?
+   ═══════════════════════════════════════ */
+const QS=[
+  {
+    q:"☀️ Bu sabah uyandığınızda aklınıza ilk gelen şey neydi?",
+    quick:["Bugünkü işlerim / planlarım","Aile veya arkadaşlarım","Hiçbir şey, çok uykuşluydum","Endişelendiğim bir şey"],
+    /* projeksiyon değil → fizyolojik/davranışsal. "Endişe" seçeneği utandırmaz çünkü nötr */
+    weights:[0.7, 0.5, -0.2, -0.7]
+  },
+  {
+    q:"🍽️ Bugün öğle yemeğini nasıl geçirmeyi hayal ediyorsunuz?",
+    quick:["Ekiple birlikte, sohbet ederek","Yalnız, sessiz bir köşede","Masada çalışarak — çok işim var","Açlığımı bile fark etmeyebilirim"],
+    /* sosyal geri çekilme ve iştah kaybı klinik stres göstergeleri */
+    weights:[0.8, -0.1, -0.5, -0.9]
+  },
+  {
+    q:"💬 Bir yakınınız size 'bugün nasılsın?' diye sorsaydı, ne derdiniz?",
+    quick:["İyiyim, enerjik hissediyorum","Fena değil, idare eder","Biraz yorgunum ama olur","Zor, ama bunu pek söylemezdim"],
+    /* projeksiyon + sosyal maske tespiti: 4. seçenek maskeli itiraf */
+    weights:[1.0, 0.3, -0.3, -0.8]
+  },
+  {
+    q:"⏱️ Bugün saatler nasıl geçiyor sizin için?",
+    quick:["Uçup gidiyor, yetişemiyorum","Normal akıyor","Yavaş, konsantre olmak zor","Donmuş gibi, hiç ilerlemek istemiyorum"],
+    /* zaman algısı depresyon/anksiyete göstergesi; kişi bunu "ruh hali" olarak değil nötr gözlem olarak ifade eder */
+    weights:[0.4, 0.6, -0.5, -1.0]
+  },
+  {
+    q:"🌙 Bu akşam işten çıkınca ne yapmak istiyorsunuz?",
+    quick:["Aktif bir şey — spor, dışarı çıkmak","Sevdiklerimle vakit geçirmek","Sadece uzanmak, ekrana bakmak","Hiçbir şey, sadece uyumak istiyorum"],
+    /* hedonik kapasite testi: sosyal aktiviteye istek düzeyi ruh hali yansıtır */
+    weights:[0.9, 0.7, -0.2, -0.8]
+  },
+  {
+    q:"🤝 Bugün bir iş arkadaşınız size bir sorun getirse, ilk tepkiniz ne olurdu?",
+    quick:["Seve seve yardım ederim","Yardım ederim ama biraz zorlanırım","Önce kendi işimi bitireyim derdim","Zor, şu an kendime bile bakamıyorum"],
+    /* sosyal enerji rezervi ve empati kapasitesi tespiti */
+    weights:[0.8, 0.3, -0.4, -0.9]
+  },
+  {
+    q:"🎯 Bu haftaki en büyük başarınız neydi? (küçük de olsa)",
+    quick:["Aklıma geldi, gurur duydum","Bir şeyler var ama sıradan","Sanmıyorum, takip etmedim","Hiçbir şey aklıma gelmiyor"],
+    /* öz-yeterlilik ve pozitif anlam kurma kapasitesi */
+    weights:[0.9, 0.2, -0.4, -0.8]
+  },
+];
+
+/* Her gün farklı 5 soru seç — deterministik (aynı günde herkes aynı soruları görür) */
+function getDailyQuestions(){
+  const seed=parseInt(todayStr().replace(/-/g,''))%1000;
+  const shuffled=[...QS].sort((a,b)=>((seed*17+QS.indexOf(a)*31)%97)-((seed*17+QS.indexOf(b)*31)%97));
+  return shuffled.slice(0,5);
+}
+
+/* ═══ STATE ═══ */
+let CU=null,step=0,scores=[],botBusy=false,done=false,dailyQS=[];
+const _adminStatus={};
+
+/* ═══ ROUTING ═══ */
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function doLogin(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value;
+  const err=document.getElementById('lerr');
+  if(USERS[u]&&USERS[u].pass===p){
+    err.style.display='none';CU=u;
+    if(USERS[u].role==='admin'){showAdmin();}else{seedDemo(u);startEmp();}
+  }else{err.style.display='block';}
+}
+function logout(){
+  CU=null;step=0;scores=[];done=false;botBusy=false;dailyQS=[];
+  document.getElementById('lu').value='';document.getElementById('lp').value='';
+  show('s-login');
+}
+
+/* ═══ EMPLOYEE ═══ */
+function startEmp(){
+  document.getElementById('emp-title').textContent='Bugün Motive misin?';
+  const hist=getHist(CU);
+  const streak=getStreak(hist);
+  const pts=getTotalPoints(hist);
+  const sb=document.getElementById('streak-badge');
+  sb.textContent=streak>1?`🔥 ${streak} gün seri · ${pts} puan`:`${pts} puan`;
+  activateTab('t-check');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  show('s-emp');
+  startChat();
+}
+
+function switchTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  activateTab(id);
+  if(id==='t-history')renderHistory('week');
+  if(id==='t-badges')renderBadges();
+}
+function activateTab(id){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id===id));}
+
+/* ═══ CHAT ═══ */
+function startChat(){
+  step=0;scores=[];done=false;botBusy=false;
+  dailyQS=getDailyQuestions();
+  document.getElementById('chat-area').innerHTML='';
+  document.getElementById('result-area').style.display='none';
+  document.getElementById('chat-footer').style.display='block';
+  document.getElementById('quick-btns').innerHTML='';
+  document.getElementById('chat-inp').value='';
+  renderProg(0);
+  const hist=getHist(CU);
+  if(hist.length&&hist[hist.length-1].date===todayStr()){
+    document.getElementById('chat-footer').style.display='none';
+    showResult(hist[hist.length-1].score,hist[hist.length-1].points,true);return;
+  }
+  setTimeout(()=>botSay(dailyQS[0].q,dailyQS[0].quick),400);
+}
+
+function renderProg(s){
+  document.getElementById('chat-prog').innerHTML=
+    dailyQS.map((_,i)=>`<div class="pd ${i<s?'done':i===s?'cur':''}"></div>`).join('');
+}
+
+function botSay(text,quick=[]){
+  botBusy=true;
+  const area=document.getElementById('chat-area');
+  const el=document.createElement('div');el.className='msg-bot';
+  el.innerHTML='<div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  area.appendChild(el);area.scrollTop=area.scrollHeight;
+  setTimeout(()=>{el.textContent=text;botBusy=false;setQuick(quick);area.scrollTop=area.scrollHeight;},700+Math.random()*300);
+}
+
+function setQuick(opts){
+  const c=document.getElementById('quick-btns');c.innerHTML='';
+  opts.forEach((o,i)=>{
+    const b=document.createElement('button');b.className='qb';b.textContent=o;
+    b.onclick=()=>handleAns(o,i);c.appendChild(b);
+  });
+}
+
+function sendMsg(){
+  const inp=document.getElementById('chat-inp');
+  const v=inp.value.trim();if(!v||botBusy||done)return;
+  inp.value='';handleAns(v,-1);
+}
+
+function handleAns(text,idx){
+  if(botBusy||done)return;
+  const area=document.getElementById('chat-area');
+  const el=document.createElement('div');el.className='msg-user';el.textContent=text;
+  area.appendChild(el);document.getElementById('quick-btns').innerHTML='';area.scrollTop=area.scrollHeight;
+  const q=dailyQS[step];
+  let sc=0;
+  if(idx>=0&&idx<q.weights.length){sc=q.weights[idx];}
+  else{
+    const l=text.toLowerCase();
+    sc=l.includes('harika')||l.includes('güzel')||l.includes('iyi')?.6:
+       l.includes('zor')||l.includes('kötü')||l.includes('uyumak')||l.includes('yorgun')?-.6:0;
+  }
+  scores.push(sc);step++;renderProg(step);
+  if(step<dailyQS.length){setTimeout(()=>botSay(dailyQS[step].q,dailyQS[step].quick),400);}
+  else{finishChat();}
+}
+
+function finishChat(){
+  done=true;
+  const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+  const st=avg>=.3?'green':avg>=-.3?'yellow':'red';
+  const hist=getHist(CU).filter(h=>h.date!==todayStr());
+  const streak=getStreak([...hist,{date:todayStr()}]);
+  const pts=calcPoints(avg,streak);
+  hist.push({date:todayStr(),score:avg,status:st,points:pts});
+  saveHist(CU,hist);
+  _adminStatus[CU]={status:st,name:USERS[CU].name,score:avg,time:new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})};
+
+  // nötr kapanış — hiçbir durumu "kötü" yansıtmaz
+  const closes=[
+    "Teşekkürler, bugün de buradaydın 🌿 Harika bir gün geçir.",
+    "Paylaştığın için teşekkürler 💛 Kendine iyi bak bugün.",
+    "Burada olduğun için teşekkürler. Bugün kendine nazik ol 🤍"
+  ];
+  setTimeout(()=>{
+    botSay(closes[st==='green'?0:st==='yellow'?1:2]);
+    setTimeout(()=>{document.getElementById('chat-footer').style.display='none';showResult(avg,pts,false);},1100);
+  },350);
+}
+
+function showResult(avg,pts,repeat){
+  const st=avg>=.3?'green':avg>=-.3?'yellow':'red';
+  // Puanı duruma göre değil katılıma göre göster
+  const icons={green:'😊',yellow:'😐',red:'😔'};
+  const titles={green:'Enerjiniz yüksek görünüyor.',yellow:'Orta hızda bir gün.',red:'Bugün biraz yavaş gidiyorsunuz.'};
+  // Düşük puan = kötü değil → "yavaş" gibi nötr dil
+  const subs={
+    green:'Bugünkü yanıtlarınız aktif ve bağlı bir ruh halini yansıtıyor.',
+    yellow:'Dengeli bir gün. Bazı şeyler kolay, bazıları biraz daha zorlu.',
+    red:'Bugün biraz daha içe dönük veya yorgun hissedebilirsiniz — bu da çok normal.'
+  };
+  const hist=getHist(CU);
+  const streak=getStreak(hist);
+  const totalPts=getTotalPoints(hist);
+  const newBadges=ALL_BADGES.filter(b=>b.check(hist));
+
+  const ra=document.getElementById('result-area');
+  ra.style.display='block';
+  ra.innerHTML=`
+    <div class="result-box">
+      ${repeat?'<div style="font-size:11px;color:var(--muted);margin-bottom:.75rem;">Bugün zaten tamamladınız ✓</div>':''}
+      <div class="result-icon">${icons[st]}</div>
+      <div class="result-title">${titles[st]}</div>
+      <div class="result-sub">${subs[st]}</div>
+      <div class="pill pill-${st}"><div class="pill-dot"></div>${st==='green'?'Aktif':'st'==='yellow'?'Dengeli':'Dinleniyor'}</div>
+    </div>
+    <div class="reward-box">
+      <div class="reward-hd">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        Bugünkü ödüller
+      </div>
+      <div class="reward-grid">
+        <div class="reward-item">
+          <span class="reward-emoji">📅</span>
+          <div class="reward-name">+${pts||40} puan</div>
+          <div class="reward-desc">Bugün katıldın</div>
+        </div>
+        <div class="reward-item">
+          <span class="reward-emoji">${streak>=7?'⚡':streak>=3?'🔥':'🌱'}</span>
+          <div class="reward-name">${streak} gün seri</div>
+          <div class="reward-desc">${streak>=7?'Haftayı tamamladın!':streak>=3?'Seri yakalıyorsun!':'Devam et!'}</div>
+        </div>
+        <div class="reward-item">
+          <span class="reward-emoji">💎</span>
+          <div class="reward-name">${totalPts} toplam</div>
+          <div class="reward-desc">${totalPts>=500?'Efsane seviye!':totalPts>=100?'Gelişiyorsun!':'Büyüyor!'}</div>
+        </div>
+      </div>
+      ${streak>1?`<div class="streak-bar">
+        <div class="streak-dots">${Array.from({length:7},(_,i)=>`<div class="streak-dot ${i<Math.min(streak,7)?'lit':''}">
+          ${i<Math.min(streak,7)?'✓':''}</div>`).join('')}</div>
+        <span class="streak-lbl">🔥 ${streak} gün</span>
+      </div>`:''}
+    </div>
+    <div class="ai-box" id="ai-box">
+      <div class="ai-hd">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Kişisel öneriler
+      </div>
+      <div id="ai-tips"></div>
+    </div>`;
+
+  showTips(st,avg,streak,totalPts);
+}
+
+/* ═══════════════════════════════════════
+   AKILLI ÖNERİ KÜTÜPHANESİ
+   3 durum × 5 kategori × 4 öneri = 60 farklı öneri
+   Her gün farklı kombinasyon gösterir
+   ═══════════════════════════════════════ */
+const TIPS = {
+  green: [
+    // Enerji yönetimi
+    [
+      {icon:'⚡',title:'Enerjini zirveye taşı',text:'Bugün en zorlu işini sabahın ilk 2 saatine al. Zihnin en net olduğu an bu — bunu heba etme.'},
+      {icon:'🎯',title:'Tek odak noktası belirle',text:'Bugün bitmesini en çok istediğin bir görevi seç ve önce onu tamamla. Çoklu görev üretkenliği %40 düşürüyor.'},
+      {icon:'🌊',title:'Akışa gir',text:'Telefonu sessize al, 25 dakikalık bloklar halinde çalış. Bu enerjiyle derin çalışma anın bugün.'},
+      {icon:'🏃',title:'Hareketini koru',text:'Öğleden sonra dikkat dağılmadan önce kısa bir yürüyüş mola ver. 10 dakika bile odaklanmayı %20 artırıyor.'},
+    ],
+    // Ekip & sosyal
+    [
+      {icon:'🤝',title:'Enerjini paylaş',text:'Bugün yanında bir iş arkadaşın varsa kısa bir "nasılsın" sorusu sor. İyi enerji bulaşıcı.'},
+      {icon:'💬',title:'Bir geri bildirim ver',text:'Bugün birinin iyi yaptığı bir şeyi söyle. Hem onun hem de senin moralini yükseltir.'},
+      {icon:'🙌',title:'Birlikte çöz',text:'Bekleyen ortak bir problem varsa bugün masaya yatır. Enerjin yüksekken takım çalışması daha verimli.'},
+      {icon:'🌟',title:'Mentor ol',text:'Bugün deneyimini paylaşabileceğin bir an yakala. Başkasına yardım etmek kendi motivasyonunu da artırır.'},
+    ],
+    // Öz-bakım
+    [
+      {icon:'💧',title:'Sıvı almayı unutma',text:'Yüksek enerjide terleme ve düşünme artar — su içmeyi atlamak dikkat dağınıklığına yol açar. Masana bir bardak koy.'},
+      {icon:'🍎',title:'Hafif ve dengeli beslen',text:'Bu enerjiyi korumak için öğle yemeğini hafif tut. Ağır yemek sonrası enerji düşüşü yaşanabilir.'},
+      {icon:'😴',title:'Bu akşam erken uyu',text:'Yüksek enerji günleri beyni yorar. Bu akşam 30 dakika erken yatmak yarını da güçlü başlatır.'},
+      {icon:'🧘',title:'2 dakika nefes al',text:'Yüksek enerjiyi odaklanmaya çevirmek için kısa bir derin nefes molası ver. Hız + denge = verimlilik.'},
+    ],
+    // Gelişim
+    [
+      {icon:'📚',title:'Yeni bir şey öğren',text:'Bugün 15 dakika bir makale, podcast ya da video ile kendini geliştir. Yüksek enerji öğrenme kapasiteni artırır.'},
+      {icon:'✍️',title:'Bugünü kaydet',text:'Akşam 3 şeyi yaz: ne iyi gitti, ne öğrendin, yarın ne yapacaksın. Bu alışkanlık büyümeyi hızlandırır.'},
+      {icon:'🔍',title:'Bir süreci iyileştir',text:'Tekrar tekrar yaptığın bir işi bugün gözden geçir. Daha hızlı yapmanın bir yolu var mı?'},
+      {icon:'💡',title:'Fikir üret',text:'Aklına gelen her fikri bugün not al — iyi ya da kötü fark etmez. Yüksek enerji yaratıcılığı patlatır.'},
+    ],
+    // Anlam & motivasyon
+    [
+      {icon:'🎊',title:'Küçük bir kutlama yap',text:'Bugün tamamladığın bir işin üstüne bir tik at, kendinle gurur duy. Küçük zaferler büyük motivasyon verir.'},
+      {icon:'🌈',title:'Hedefini hatırla',text:'Bu haftanın sonunda neyi başarmış olmak istiyorsun? Bunu zihninde netleştir.'},
+      {icon:'🔥',title:'Serinlemeden önce gazla',text:'Motivasyonun yüksekken ertelemişin en zor görevini yap. Sonra rahat rahat dinlenebilirsin.'},
+      {icon:'🙏',title:'Minnet et',text:'Bugün sana destek olan ya da işini kolaylaştıran birine teşekkür et. Bu seni de pozitif tutar.'},
+    ],
+  ],
+  yellow: [
+    // Enerji kazanma
+    [
+      {icon:'☕',title:'Küçük bir mola ver',text:'5 dakika ekrandan uzaklaş, pencereden dışarı bak ya da kısa bir yürüyüş yap. Zihin sıfırlanır.'},
+      {icon:'🎵',title:'Müzikle başla',text:'Sevdiğin bir şarkı ile 5 dakika geçir. Ruh hali müzikle hızla değişebilir.'},
+      {icon:'🌿',title:'Derin nefes al',text:'4 saniye nefes al, 4 tut, 4 ver. Bunu 3 kez yap. Kortizol düşer, odak gelir.'},
+      {icon:'🚶',title:'2 dakika yürü',text:'Koridorda kısa bir tur at. Fiziksel hareket beyne oksijen pompalar ve enerjiyi artırır.'},
+    ],
+    // Odaklanma
+    [
+      {icon:'📋',title:'Listeyi küçült',text:'Bugünkü yapılacaklar listenden en önemli 3 şeyi seç, geri kalanını yarına bırak. Az hedef, daha fazla başarı.'},
+      {icon:'⏱️',title:'Pomodoro dene',text:'25 dakika çalış, 5 dakika mola ver. Bu ritim dengeli enerji için mükemmel.'},
+      {icon:'🔕',title:'Bildirimleri kapat',text:'30 dakikalığına telefon ve e-posta bildirimlerini kapat. Dikkat dağınıklığı yorgunluğu artırır.'},
+      {icon:'✅',title:'Kolay birini bitir',text:'Listende en kolay görevi seç ve hemen tamamla. Tamamlama hissi motivasyonu tetikler.'},
+    ],
+    // Sosyal destek
+    [
+      {icon:'💬',title:'Birisiyle konuş',text:'Kısa bir sohbet enerji verebilir. Bir meslektaşına "bugün nasıl gidiyor?" diye sor.'},
+      {icon:'🤲',title:'Yardım istemek tamam',text:'Zorlandığın bir konuda yardım istemek zayıflık değil, akıllılık. Bugün bunu dene.'},
+      {icon:'😊',title:'Gülümse',text:'Yapay bile olsa gülümsemek beyne "iyi hissediyorum" sinyali gönderir. Dene!'},
+      {icon:'🫂',title:'Bir anı paylaş',text:'Güldüren bir şey varsa paylaş. Kahkaha en hızlı enerji yenileyicilerden biridir.'},
+    ],
+    // Vücut
+    [
+      {icon:'💧',title:'Su iç',text:'Hafif yorgunluk çoğu zaman sadece susuzluktur. Bir bardak su iç, 10 dakika bekle.'},
+      {icon:'🍌',title:'Hafif bir şeyler ye',text:'Kan şekeri düşmüş olabilir. Bir meyve, kuruyemiş ya da yoğurt enerjini dengeleyebilir.'},
+      {icon:'🧍',title:'Duruşunu düzelt',text:'Öne eğilmek enerji düşüşünü artırır. Sırtını dik tut, omuzlarını aç — anında hafiflersin.'},
+      {icon:'👁️',title:'Gözlerini dinlendir',text:'20-20-20 kuralı: Her 20 dakikada bir 20 saniye 20 feet (6m) uzağa bak. Ekran yorgunluğunu azaltır.'},
+    ],
+    // Anlam
+    [
+      {icon:'🌅',title:'Bugünü kabul et',text:'Her gün zirve olmak zorunda değil. Dengeli bir gün de tamamlanmış bir gündür.'},
+      {icon:'📖',title:'Bir şükür bul',text:'Bugün iyi giden küçük bir şeyi düşün. Zihin olumluya yönelince enerji artar.'},
+      {icon:'🎯',title:'Sadece bir sonraki adım',text:'Büyük resme bakmak yorucu. Sadece şu an yapman gereken bir sonraki küçük adıma odaklan.'},
+      {icon:'🌙',title:'Akşam için kendin planla',text:'Bu akşam kendine bir şey planla — yemek, dizi, yürüyüş. Günün sonu varsa gündüz daha iyi geçer.'},
+    ],
+  ],
+  red: [
+    // Anlık rahatlama (5 dk)
+    [
+      {icon:'🤍',title:'Kendine nazik ol',text:'Bugün zor hissediyorsan bu geçer. Kendinle konuşurken bir arkadaşına konuşur gibi konuş — sert olma.'},
+      {icon:'🌬️',title:'Sadece nefes al',text:'Şu an sadece nefes al. 5 saniye içeri, 5 saniye dışarı. Başka hiçbir şey yapmak zorunda değilsin.'},
+      {icon:'☕',title:'Bir içecek iç',text:'Çay, kahve ya da su — yavaşça içmek bile sinir sistemini sakinleştirir. Küçük bir mola hak ediyorsun.'},
+      {icon:'🛑',title:'Dur, sadece dur',text:'5 dakika hiçbir şey yapma. Ekranı kapat, gözlerini kapat. İzin veriyorsun kendine.'},
+    ],
+    // Yük hafifletme
+    [
+      {icon:'📉',title:'Beklentiyi düşür',text:'Bugün "yeterli" yeterli. Mükemmel değil, sadece bir adım ilerlemeye çalış.'},
+      {icon:'🗑️',title:'Listeni küçült',text:'Bugün yapılacaklar listenden sadece en kritik 1 şeyi seç. Gerisini yarına bırakmak tamam.'},
+      {icon:'🙅',title:'Hayır demek tamam',text:'Bugün ek bir yük almak zorunda değilsin. Sınır koymak öz-saygının bir parçası.'},
+      {icon:'📤',title:'Bir şeyi devret',text:'Erteleyebileceğin ya da başkasının yapabileceği bir şey var mı? Bugün onu bırak.'},
+    ],
+    // Fiziksel
+    [
+      {icon:'💧',title:'Önce su iç',text:'Yorgunluk ve baş ağrısı çoğu zaman susuzluktur. Bir büyük bardak su iç, 10 dakika bekle.'},
+      {icon:'🚪',title:'Dışarı çık',text:'2 dakika bile olsa dışarıya çık. Taze hava ve doğal ışık anında etki eder.'},
+      {icon:'🧍',title:'Ayağa kalk',text:'Uzun süredir oturuyorsan ayağa kalk, biraz uzat. Kaslar gevşeyince zihin de gevşer.'},
+      {icon:'😴',title:'Bugün erken uyu',text:'En iyi iyileşme uykudur. Bu akşam 1 saat erken yat — yarın çok daha iyi hissedersin.'},
+    ],
+    // Duygusal destek
+    [
+      {icon:'💬',title:'Birisiyle paylaş',text:'Güvendiğin birine "bugün zor" demek yük hafifletir. Tek başına taşımak zorunda değilsin.'},
+      {icon:'📝',title:'Yaz, döküm yap',text:'Aklındakileri bir kağıda dök — düzensiz, dağınık olsun, fark etmez. Zihin boşalır.'},
+      {icon:'🫶',title:'Bu his geçecek',text:'Zor günler kalıcı değil. Dün de böyle bir gün geçirdin ve geçti. Bugün de geçecek.'},
+      {icon:'🌱',title:'Küçük bir adım yeter',text:'Bugün sadece bir küçük şey yap ve bunu başarı say. İlerleme büyüklükle ölçülmez.'},
+    ],
+    // Anlam & perspektif
+    [
+      {icon:'🔭',title:'Büyük resme bak',text:'Bu zor an, uzun bir yolculuğun küçük bir parçası. Gelecekteki sen bugünkü seni anlayacak.'},
+      {icon:'🏆',title:'Bugün burada olmak başarı',text:'Check-in yapmak için bile burada olman bir adım. Bu küçük değil — devam etmek güç ister.'},
+      {icon:'🌤️',title:'Yarın yeni bir sayfa',text:'Bugün bittiğinde sıfırlanıyorsun. Yarın farklı bir gün olacak.'},
+      {icon:'❤️',title:'Yardım istemek cesaret',text:'Destek almak istiyorsan bunu söylemek tamamen normal ve cesur bir adım.'},
+    ],
+  ],
+};
+
+function showTips(st, avg, streak, totalPts) {
+  // Her gün farklı kombinasyon — tarih + kullanıcı bazlı seed
+  const seed = parseInt(todayStr().replace(/-/g,'')) + (CU||'').length;
+  const picked = TIPS[st].map((cat, ci) => {
+    const idx = (seed * (ci+3) * 7) % cat.length;
+    return cat[idx];
+  });
+  // 3 tanesini göster
+  const show3 = [picked[0], picked[2], picked[4] || picked[1]];
+  document.getElementById('ai-tips').innerHTML = show3.map(t =>
+    `<div class="ai-tip"><strong>${t.icon} ${t.title}</strong><br>${t.text}</div>`
+  ).join('');
+}
+
+/* ═══ HISTORY ═══ */
+let chart=null,ptChart=null;
+function renderHistory(period){
+  const hist=getHist(CU);
+  const today=new Date();
+  const days=period==='week'?7:period==='month'?30:365;
+  document.getElementById('chart-lbl').textContent=period==='week'?'Son 7 günlük durum':period==='month'?'Son 30 günlük durum':'Bu yılın durum özeti';
+  const step2=period==='year'?14:1;
+  const labels=[],data=[],ptColors=[];
+  for(let i=days-1;i>=0;i-=step2){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    const entry=hist.find(h=>h.date===ds);
+    const lbl=period==='week'?d.toLocaleDateString('tr-TR',{weekday:'short',day:'numeric'}):
+               period==='month'?d.toLocaleDateString('tr-TR',{day:'numeric',month:'short'}):
+               d.toLocaleDateString('tr-TR',{month:'short'});
+    labels.push(lbl);
+    const s=entry?Math.round((entry.score+1)/2*100):null;
+    data.push(s);
+    ptColors.push(s===null?'transparent':s>=65?'#2A5240':s>=35?'#7A5010':'#7A1A1A');
+  }
+  const ctx2=document.getElementById('moodChart').getContext('2d');
+  if(chart)chart.destroy();
+  chart=new Chart(ctx2,{type:'line',data:{labels,datasets:[{data,borderColor:'#2A5240',borderWidth:2,pointBackgroundColor:ptColors,pointBorderColor:ptColors,pointRadius:labels.length>20?2:5,pointHoverRadius:7,tension:.35,fill:true,spanGaps:true,backgroundColor:(c)=>{const g=c.chart.ctx.createLinearGradient(0,0,0,140);g.addColorStop(0,'rgba(42,82,64,.15)');g.addColorStop(1,'rgba(42,82,64,0)');return g;}}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw===null?'Giriş yok':`Skor: ${c.raw}/100`}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#8A8279',maxRotation:45}},y:{min:0,max:100,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},color:'#8A8279',callback:v=>v+'%'}}}}});
+  const valid=hist.filter(h=>{const df=Math.floor((today-new Date(h.date))/864e5);return df<days;});
+  const g=valid.filter(h=>h.status==='green').length;
+  const y=valid.filter(h=>h.status==='yellow').length;
+  const r=valid.filter(h=>h.status==='red').length;
+  const totalPts=getTotalPoints(valid);
+  document.getElementById('stat-row').innerHTML=`
+    <div class="stat-mini"><div class="stat-num g">${g}</div><div class="stat-lbl2">Aktif gün</div></div>
+    <div class="stat-mini"><div class="stat-num y">${y}</div><div class="stat-lbl2">Dengeli gün</div></div>
+    <div class="stat-mini"><div class="stat-num r">${r}</div><div class="stat-lbl2">Dinlenen gün</div></div>
+    <div class="stat-mini"><div class="stat-num gold">${totalPts}</div><div class="stat-lbl2">Puan</div></div>`;
+  const recent=[...valid].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
+  const hl=document.getElementById('hist-list');
+  if(!recent.length){hl.innerHTML='<div class="no-data"><strong>Henüz veri yok</strong>Bu dönemde giriş yapılmamış.</div>';return;}
+  hl.innerHTML=recent.map(h=>{
+    const pct=Math.round((h.score+1)/2*100);
+    const fc=h.status==='green'?'var(--green)':h.status==='yellow'?'var(--yellow)':'var(--red)';
+    const tcls=h.status==='green'?'tag-g':h.status==='yellow'?'tag-y':'tag-r';
+    const tlbl=h.status==='green'?'Aktif':h.status==='yellow'?'Dengeli':'Dinleniyor';
+    const fd=new Date(h.date).toLocaleDateString('tr-TR',{day:'numeric',month:'short',weekday:'short'});
+    return `<div class="hist-item"><span class="hist-date">${fd}</span><div class="hist-bar-wrap"><div class="hist-bar" style="width:${pct}%;background:${fc};"></div></div><span class="tag ${tcls}" style="font-size:11px;">${tlbl}</span><span style="font-size:11px;color:var(--gold);margin-left:6px;white-space:nowrap;">+${h.points||30}p</span></div>`;
+  }).join('');
+}
+
+function setPeriod(p,el){document.querySelectorAll('.pt').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderHistory(p);}
+
+/* ═══ BADGES ═══ */
+function renderBadges(){
+  const hist=getHist(CU);
+  const bg=document.getElementById('badges-grid');
+  bg.innerHTML=ALL_BADGES.map(b=>{
+    const earned=b.check(hist);
+    return `<div class="badge-item">
+      <div class="badge-circle ${earned?'earned':'locked'}">${b.emoji}</div>
+      <div class="badge-lbl" style="color:${earned?'var(--gold)':'var(--muted)'};">${b.name}</div>
+      <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:1px;">${b.desc}</div>
+    </div>`;
+  }).join('');
+
+  // puan grafiği
+  const last14=[];
+  for(let i=13;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    const e=hist.find(h=>h.date===ds);
+    last14.push({lbl:d.toLocaleDateString('tr-TR',{day:'numeric',month:'short'}),pts:e?e.points:null});
+  }
+  const pctx=document.getElementById('pointsChart').getContext('2d');
+  if(ptChart)ptChart.destroy();
+  ptChart=new Chart(pctx,{type:'bar',data:{labels:last14.map(x=>x.lbl),datasets:[{data:last14.map(x=>x.pts),backgroundColor:last14.map(x=>x.pts?'rgba(139,105,20,.25)':'transparent'),borderColor:last14.map(x=>x.pts?'rgba(139,105,20,.6)':'transparent'),borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw?`+${c.raw} puan`:'Giriş yok'}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},color:'#8A8279'}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#8A8279'}}}}});
+}
+
+/* ═══ ADMIN ═══ */
+function showAdmin(){
+  document.getElementById('admin-date').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  renderAdmin();show('s-admin');
+}
+function renderAdmin(){
+  let g=0,y=0,r=0;
+  const emps=Object.keys(USERS).filter(u=>USERS[u].role==='emp');
+  const list=document.getElementById('emp-list');list.innerHTML='';
+  emps.forEach(u=>{
+    const info=USERS[u],s=_adminStatus[u];
+    const ini=info.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    const hist=getHist(u);const streak=getStreak(hist);const pts=getTotalPoints(hist);
+    const row=document.createElement('div');row.className='emp-row';
+    const tagHtml=s?`<span class="tag tag-${s.status[0]}">${s.status==='green'?'Aktif':s.status==='yellow'?'Dengeli':'Dinleniyor'}</span><span style="font-size:11px;color:var(--muted);margin-left:7px;">${s.time}</span>`:`<span class="tag tag-w">Henüz giriş yok</span>`;
+    row.innerHTML=`<div class="ava" style="background:${info.color||'#ddd'}">${ini}</div><div style="flex:1;"><div class="emp-name">${info.name}</div><div class="emp-user">${u} · ${pts}p · ${streak>0?`🔥${streak}gün`:'-'}</div></div><div style="display:flex;align-items:center;">${tagHtml}</div>`;
+    list.appendChild(row);
+    if(s){if(s.status==='green')g++;else if(s.status==='yellow')y++;else r++;}
+  });
+  document.getElementById('cnt-g').textContent=g;
+  document.getElementById('cnt-y').textContent=y;
+  document.getElementById('cnt-r').textContent=r;
+  document.getElementById('emp-count-tag').textContent=emps.length+' çalışan';
+
+  const tw=document.getElementById('trend-wrap');
+  tw.innerHTML='<div class="trend-lbl">Son 7 gün — sağ = bugün</div>';
+  emps.forEach(u=>{
+    const info=USERS[u],hist=getHist(u);
+    const ini=info.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    const dots=[];
+    for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const e=hist.find(h=>h.date===d.toISOString().slice(0,10));dots.push(e?e.status[0]:'e');}
+    const row=document.createElement('div');row.className='etr-row';
+    row.innerHTML=`<span class="etr-name" title="${info.name}">${ini} ${info.name.split(' ')[0]}</span><div class="etr-bars">${dots.map(d=>`<div class="etr-dot ${d}" title="${d==='g'?'Aktif':d==='y'?'Dengeli':d==='r'?'Dinleniyor':'Giriş yok'}"></div>`).join('')}</div>`;
+    tw.appendChild(row);
+  });
+}
+
+function addEmp(){
+  const name=document.getElementById('nn').value.trim();
+  const user=document.getElementById('nu').value.trim();
+  const pass=document.getElementById('np').value.trim();
+  if(!name||!user||!pass){alert('Tüm alanları doldurun.');return;}
+  if(USERS[user]){alert('Bu kullanıcı adı zaten var.');return;}
+  USERS[user]={pass,role:'emp',name,color:ACOLORS[acIdx++%ACOLORS.length]};
+  ['nn','nu','np'].forEach(id=>document.getElementById(id).value='');
+  renderAdmin();
+}
+</script>
+</body>
+</html>
