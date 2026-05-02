@@ -16,7 +16,7 @@ Günlük durum özeti (yeşil / sarı / kırmızı)
 7 günlük geçmiş ızgarası
 Çalışan ekleme / yönetim
 
-Tamamen statik, backend yok, ücretsiz. GitHub Pages'te çalışır.
+----------
 
 Is Today a Good Day?
 Every morning feels different — but in most workplaces, when you ask "how are you?", everyone just says "fine."
@@ -36,4 +36,4 @@ Daily status overview (green / yellow / red)
 7-day history grid per employee
 Add and manage team members
 
-Fully static. No backend. No cost. Runs on GitHub Pages.
+
