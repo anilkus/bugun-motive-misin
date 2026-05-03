@@ -1,4 +1,5 @@
 Bugün Motive misin?
+
 İş yerinde her gün herkesin psikolojisi farklı. Ama bunu anlamak zor — özellikle "nasılsın?" diye sorduğunda herkes "iyiyim" diyor.
 Bu uygulama o sorunu çözmek için yapıldı.
 Her sabah çalışanlar kısa bir check-in yapıyor. Sorular doğrudan "nasılsın?" değil — davranışsal psikoloji tekniklerine dayalı, projeksiyon ve fizyolojik göstergeler kullanıyor. Kişi farkında olmadan gerçek durumunu yansıtıyor. Yönetici ise gün içinde kimin desteğe ihtiyacı olduğunu tek bakışta görüyor.
