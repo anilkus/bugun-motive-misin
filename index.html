@@ -133,6 +133,22 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
 .tag-r{background:var(--red-bg);color:var(--red);}
 .tag-w{background:var(--surface2);color:var(--muted);}
 .no-data{text-align:center;padding:2.5rem;color:var(--muted);font-size:13px;}
+/* TAKVİM */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-day-hd{font-size:10px;color:var(--muted);text-align:center;padding:2px 0;font-weight:500;}
+.cal-day{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:default;position:relative;transition:transform .1s;}
+.cal-day:hover{transform:scale(1.15);z-index:2;}
+.cal-day.empty{background:transparent;}
+.cal-day.no-entry{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+.cal-day.g{background:var(--green-bg);color:var(--green);border:1px solid rgba(42,82,64,.3);}
+.cal-day.y{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(122,80,16,.3);}
+.cal-day.r{background:var(--red-bg);color:var(--red);border:1px solid rgba(122,26,26,.3);}
+.cal-day.today{outline:2px solid var(--accent);outline-offset:1px;}
+/* PUAN AÇIKLAMASI */
+.pts-explain{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--sh);}
+.pts-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.pts-row:last-child{border-bottom:none;}
+.pts-val{font-weight:500;color:var(--gold);}
 .no-data strong{display:block;font-size:18px;margin-bottom:.4rem;color:var(--text);}
 
 /* BADGES section in history */
@@ -239,9 +255,26 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
     </div>
     <div class="tab-panel" id="t-history">
+      <!-- TAKVİM -->
+      <div class="chart-wrap" id="cal-wrap" style="margin-bottom:1rem;">
+        <div class="chart-lbl" id="cal-title">Bu ay — günlük durumlar</div>
+        <div id="cal-nav" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+          <button class="ghost-btn" onclick="calPrev()" style="padding:4px 10px;font-size:12px;">‹ Önceki</button>
+          <span id="cal-month-lbl" style="font-size:13px;font-weight:500;color:var(--text);"></span>
+          <button class="ghost-btn" onclick="calNext()" style="padding:4px 10px;font-size:12px;">Sonraki ›</button>
+        </div>
+        <div id="cal-grid"></div>
+        <div style="display:flex;gap:12px;margin-top:.75rem;flex-wrap:wrap;">
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);"><span style="width:12px;height:12px;border-radius:3px;background:var(--green-bg);border:1px solid var(--green);display:inline-block;"></span>İyi gün</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);"><span style="width:12px;height:12px;border-radius:3px;background:var(--yellow-bg);border:1px solid var(--yellow);display:inline-block;"></span>Karma gün</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);"><span style="width:12px;height:12px;border-radius:3px;background:var(--red-bg);border:1px solid var(--red);display:inline-block;"></span>Zor gün</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);"><span style="width:12px;height:12px;border-radius:3px;background:var(--surface2);border:1px solid var(--border2);display:inline-block;"></span>Giriş yok</span>
+        </div>
+      </div>
+      <!-- GRAFİK -->
       <div class="period-tabs">
-        <div class="pt active" onclick="setPeriod('week',this)">Bu hafta</div>
-        <div class="pt" onclick="setPeriod('month',this)">Bu ay</div>
+        <div class="pt active" onclick="setPeriod('week',this)">Son 7 gün</div>
+        <div class="pt" onclick="setPeriod('month',this)">Son 30 gün</div>
         <div class="pt" onclick="setPeriod('year',this)">Bu yıl</div>
       </div>
       <div class="chart-wrap">
@@ -252,12 +285,20 @@ body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-h
       <div id="hist-list"></div>
     </div>
     <div class="tab-panel" id="t-badges">
+      <div class="pts-explain">
+        <div class="chart-lbl" style="margin-bottom:.5rem;">Puan nasıl kazanılır?</div>
+        <div class="pts-row"><span>📅 Her gün check-in</span><span class="pts-val">+20 puan</span></div>
+        <div class="pts-row"><span>🔥 Seri bonusu (gün × 5, max 50)</span><span class="pts-val">+5–50 puan</span></div>
+        <div class="pts-row"><span>💬 Dürüstlük bonusu (her cevap)</span><span class="pts-val">+10 puan</span></div>
+        <div class="pts-row"><span>⚡ 7 gün seri tamamlama</span><span class="pts-val">+25 puan</span></div>
+        <div class="pts-row" style="font-size:12px;color:var(--muted);"><span>Puan cevabına göre değil, katılımına göre verilir.</span><span class="pts-val">max 105/gün</span></div>
+      </div>
       <div class="badges-wrap">
         <div class="badges-hd">Kazanılan rozetler</div>
         <div class="badges-grid" id="badges-grid"></div>
       </div>
       <div class="chart-wrap" id="points-wrap">
-        <div class="chart-lbl">Puan geçmişi</div>
+        <div class="chart-lbl">Son 14 gün puan geçmişi</div>
         <canvas id="pointsChart" height="120"></canvas>
       </div>
     </div>
@@ -326,22 +367,40 @@ const ACOLORS=['#C8DFC0','#C0D4DF','#DFDAC0','#DFC0C0','#C0CEDF','#D5C0DF'];
 let acIdx=0;
 
 /* ═══ STORAGE ═══ */
-function getHist(u){try{return JSON.parse(localStorage.getItem('bm_'+u)||'[]');}catch{return[];}}
-function saveHist(u,arr){localStorage.setItem('bm_'+u,JSON.stringify(arr));}
+const APP_VERSION = 'v3'; // bu değer değişince tüm veriler sıfırlanır
+
+function getHist(u){
+  try{
+    const key='bm_'+APP_VERSION+'_'+u;
+    return JSON.parse(localStorage.getItem(key)||'[]');
+  }catch{return[];}
+}
+function saveHist(u,arr){
+  const key='bm_'+APP_VERSION+'_'+u;
+  localStorage.setItem(key,JSON.stringify(arr));
+}
 function todayStr(){return new Date().toISOString().slice(0,10);}
 
 function seedDemo(u){
-  // Gerçek kullanıcılar sıfırdan başlar — demo veri yok
+  // Sıfırdan başlar, demo veri yok
 }
 
-/* ═══ POINTS & BADGES ═══ */
-function calcPoints(score,streak){
-  // puanlar durumdan değil KATILIM + devamlılıktan gelir
-  // → yalan söylemek için teşvik kalmaz
-  const base=30; // her gün giriş = 30 puan
-  const streakBonus=Math.min(streak*5,50);
-  const variationBonus=10; // ne cevap verse versin bonus alır
-  return base+streakBonus+variationBonus;
+/* ═══ PUAN SİSTEMİ ═══
+   Her gün check-in yapınca kazanılır:
+   • Katılım puanı    : +20 (her gün sabit)
+   • Seri bonusu      : +5 × seri günü (max +50, yani 10. günden sonra sabit)
+   • Dürüstlük bonusu : +10 (hiç bir cevap "ödüllendirilmiyor" — skor ne olursa olsun)
+   • Haftalık komple  : +25 bonus (7 gün üst üste tamamlandığında)
+   Toplam max günlük  : 20 + 50 + 10 + 25 = 105 puan
+   NOT: Puan CEVABA göre değil KATILIMA göre verilir.
+   Yalan söylemenin hiçbir puan avantajı yoktur.
+═══════════════════════════════════════════ */
+function calcPoints(score, streak){
+  const base = 20;                          // her gün giriş = 20 puan
+  const streakBonus = Math.min(streak*5,50); // seri bonusu max 50
+  const honesty = 10;                       // ne cevap verse versin
+  const weeklyBonus = (streak>0 && streak%7===0) ? 25 : 0; // 7. günde ekstra
+  return base + streakBonus + honesty + weeklyBonus;
 }
 
 function getStreak(hist){
@@ -576,7 +635,7 @@ function switchTab(id,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   if(el)el.classList.add('active');
   activateTab(id);
-  if(id==='t-history')renderHistory('week');
+  if(id==='t-history'){renderCalendar();renderHistory('week');}
   if(id==='t-badges')renderBadges();
 }
 function activateTab(id){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id===id));}
@@ -864,6 +923,62 @@ function showTips(st, avg, streak, totalPts) {
   document.getElementById('ai-tips').innerHTML = show3.map(t =>
     `<div class="ai-tip"><strong>${t.icon} ${t.title}</strong><br>${t.text}</div>`
   ).join('');
+}
+
+/* ═══ TAKVİM ═══ */
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+
+function calPrev(){
+  calMonth--;
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderCalendar();
+}
+function calNext(){
+  calMonth++;
+  if(calMonth>11){calMonth=0;calYear++;}
+  // gelecek aya gitmesin
+  const now=new Date();
+  if(calYear>now.getFullYear()||(calYear===now.getFullYear()&&calMonth>now.getMonth())){
+    calMonth--;if(calMonth<0){calMonth=11;calYear--;}
+  }
+  renderCalendar();
+}
+
+function renderCalendar(){
+  const hist=getHist(CU);
+  const now=new Date();
+  const monthNames=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  document.getElementById('cal-month-lbl').textContent=monthNames[calMonth]+' '+calYear;
+
+  const firstDay=new Date(calYear,calMonth,1).getDay(); // 0=Pazar
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  // Pazartesi başlangıç: 0=Pzt, 6=Paz
+  const startOffset=(firstDay+6)%7;
+  const todayDs=todayStr();
+
+  let html='<div class="cal-grid">';
+  // Gün başlıkları
+  ['Pt','Sa','Ça','Pe','Cu','Ct','Pa'].forEach(d=>{
+    html+=`<div class="cal-day-hd">${d}</div>`;
+  });
+  // Boş hücreler
+  for(let i=0;i<startOffset;i++) html+='<div class="cal-day empty"></div>';
+  // Günler
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const entry=hist.find(h=>h.date===ds);
+    const isFuture=ds>todayDs;
+    const isToday=ds===todayDs;
+    let cls='cal-day';
+    if(isFuture){cls+=' empty';html+=`<div class="${cls}" style="opacity:.2;">${d}</div>`;continue;}
+    if(entry) cls+=' '+entry.status[0];
+    else cls+=' no-entry';
+    if(isToday) cls+=' today';
+    const tooltip=entry?`${entry.status==='green'?'İyi gün':entry.status==='yellow'?'Karma gün':'Zor gün'} · +${entry.points||0}p`:'Giriş yapılmadı';
+    html+=`<div class="${cls}" title="${tooltip}">${d}</div>`;
+  }
+  html+='</div>';
+  document.getElementById('cal-grid').innerHTML=html;
 }
 
 /* ═══ HISTORY ═══ */
