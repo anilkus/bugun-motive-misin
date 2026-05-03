@@ -20,6 +20,7 @@ Günlük durum özeti (yeşil / sarı / kırmızı)
 ----------
 
 Is Today a Good Day?
+
 Every morning feels different — but in most workplaces, when you ask "how are you?", everyone just says "fine."
 This app was built to see past that.
 Employees do a short daily check-in. The questions aren't direct — they're based on behavioral psychology: projection, physiological cues, time perception. People reveal how they actually feel without realizing it. Managers see at a glance who might need a little extra support today.
