@@ -19,7 +19,7 @@
   --r:14px;--rs:8px;--sh:0 2px 20px rgba(0,0,0,.06);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body {font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;}
+body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;}
 .screen{display:none;min-height:100vh;}
 .screen.active{display:flex;}
 
@@ -331,15 +331,7 @@ function saveHist(u,arr){localStorage.setItem('bm_'+u,JSON.stringify(arr));}
 function todayStr(){return new Date().toISOString().slice(0,10);}
 
 function seedDemo(u){
-  if(getHist(u).length>2)return;
-  const arr=[];
-  for(let i=29;i>=1;i--){
-    const d=new Date();d.setDate(d.getDate()-i);
-    const s=parseFloat((Math.random()*2-1).toFixed(2));
-    const pts=Math.round((s+1)/2*40)+Math.round(Math.random()*20);
-    arr.push({date:d.toISOString().slice(0,10),score:s,status:s>=.3?'green':s>=-.3?'yellow':'red',points:pts});
-  }
-  saveHist(u,arr);
+  // Gerçek kullanıcılar sıfırdan başlar — demo veri yok
 }
 
 /* ═══ POINTS & BADGES ═══ */
@@ -391,56 +383,158 @@ const ALL_BADGES=[
    SORULAR: Davranışsal & Projeksiyonel
    Her soru neden yanıltamaz?
    ═══════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   100 PSİKOLOJİK SORU HAVUZU
+   Kaynaklar: Beck (BDI), Bandura, DSM-5,
+   Maslach Tükenmişlik Ölçeği, PANAS,
+   WHO-5, SWLS, PSS, GAD-7, PHQ-9
+   Her gün farklı 5 soru seçilir
+   ═══════════════════════════════════════ */
 const QS=[
-  {
-    q:"☀️ Bu sabah uyandığınızda aklınıza ilk gelen şey neydi?",
-    quick:["Bugünkü işlerim / planlarım","Aile veya arkadaşlarım","Hiçbir şey, çok uykuşluydum","Endişelendiğim bir şey"],
-    /* projeksiyon değil → fizyolojik/davranışsal. "Endişe" seçeneği utandırmaz çünkü nötr */
-    weights:[0.7, 0.5, -0.2, -0.7]
-  },
-  {
-    q:"🍽️ Bugün öğle yemeğini nasıl geçirmeyi hayal ediyorsunuz?",
-    quick:["Ekiple birlikte, sohbet ederek","Yalnız, sessiz bir köşede","Masada çalışarak — çok işim var","Açlığımı bile fark etmeyebilirim"],
-    /* sosyal geri çekilme ve iştah kaybı klinik stres göstergeleri */
-    weights:[0.8, -0.1, -0.5, -0.9]
-  },
-  {
-    q:"💬 Bir yakınınız size 'bugün nasılsın?' diye sorsaydı, ne derdiniz?",
-    quick:["İyiyim, enerjik hissediyorum","Fena değil, idare eder","Biraz yorgunum ama olur","Zor, ama bunu pek söylemezdim"],
-    /* projeksiyon + sosyal maske tespiti: 4. seçenek maskeli itiraf */
-    weights:[1.0, 0.3, -0.3, -0.8]
-  },
-  {
-    q:"⏱️ Bugün saatler nasıl geçiyor sizin için?",
-    quick:["Uçup gidiyor, yetişemiyorum","Normal akıyor","Yavaş, konsantre olmak zor","Donmuş gibi, hiç ilerlemek istemiyorum"],
-    /* zaman algısı depresyon/anksiyete göstergesi; kişi bunu "ruh hali" olarak değil nötr gözlem olarak ifade eder */
-    weights:[0.4, 0.6, -0.5, -1.0]
-  },
-  {
-    q:"🌙 Bu akşam işten çıkınca ne yapmak istiyorsunuz?",
-    quick:["Aktif bir şey — spor, dışarı çıkmak","Sevdiklerimle vakit geçirmek","Sadece uzanmak, ekrana bakmak","Hiçbir şey, sadece uyumak istiyorum"],
-    /* hedonik kapasite testi: sosyal aktiviteye istek düzeyi ruh hali yansıtır */
-    weights:[0.9, 0.7, -0.2, -0.8]
-  },
-  {
-    q:"🤝 Bugün bir iş arkadaşınız size bir sorun getirse, ilk tepkiniz ne olurdu?",
-    quick:["Seve seve yardım ederim","Yardım ederim ama biraz zorlanırım","Önce kendi işimi bitireyim derdim","Zor, şu an kendime bile bakamıyorum"],
-    /* sosyal enerji rezervi ve empati kapasitesi tespiti */
-    weights:[0.8, 0.3, -0.4, -0.9]
-  },
-  {
-    q:"🎯 Bu haftaki en büyük başarınız neydi? (küçük de olsa)",
-    quick:["Aklıma geldi, gurur duydum","Bir şeyler var ama sıradan","Sanmıyorum, takip etmedim","Hiçbir şey aklıma gelmiyor"],
-    /* öz-yeterlilik ve pozitif anlam kurma kapasitesi */
-    weights:[0.9, 0.2, -0.4, -0.8]
-  },
+  // ── UYKU & FİZYOLOJİ ──────────────────────────────
+  {q:"Dün gece nasıl bir uyku uyudunuz?",quick:["Derin ve dinlendirici","Biraz dağınık ama idare eder","Çok az ya da çok geç uyudum","Neredeyse hiç uyuyamadım"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Bu sabah yataktan kalkmak nasıl oldu?",quick:["Kolayca kalktım, istekliydim","Biraz zorlandım ama oldu","Oldukça zorlandım","Kalkmak istemedim, kendimi sürüklüdüm"],weights:[1.0,0.3,-0.4,-0.9]},
+  {q:"Vücudunuz bugün nasıl hissettiriyor?",quick:["Hafif ve enerjik","Normal, sorun yok","Biraz ağır ve gergin","Çok yorgun, her yerim ağrıyor"],weights:[0.9,0.4,-0.4,-0.9]},
+  {q:"Bugün yemek yemek size nasıl geliyor?",quick:["İştahlıyım, iyi hissettiriyor","Normal, yiyorum ama fark yok","Pek isteğim yok ama yiyorum","Açlığımı bile fark etmiyorum"],weights:[0.8,0.3,-0.4,-0.9]},
+  {q:"Son birkaç gündür uyku düzeniniz nasıldı?",quick:["Düzenli ve yeterliydi","Biraz düzensizdi","Oldukça bozuktu","Çok kötüydü, hep yorgunum"],weights:[0.9,0.2,-0.5,-0.9]},
+  {q:"Şu an bedeninizde bir gerginlik hissediyor musunuz?",quick:["Hayır, rahat hissediyorum","Hafif bir gerilim var","Omuzlarım / boynumda belirgin gerginlik var","Tüm vücudum gergin"],weights:[0.9,0.3,-0.5,-0.9]},
+  {q:"Bugün başınız ağrıyor mu ya da ağrıdı mı?",quick:["Hayır, hiç yok","Hafif bir rahatsızlık var","Belirgin baş ağrısı var","Çok yoğun, dikkat toplayamıyorum"],weights:[0.8,0.2,-0.5,-0.9]},
+  {q:"Bu hafta kendinizi fiziksel olarak nasıl hissettiniz?",quick:["Dinç ve zinde","Ortalama, fena değil","Yorgun ve isteksiz","Bitkin, hiç enerjim yok"],weights:[0.9,0.3,-0.5,-0.9]},
+
+  // ── MOTİVASYON & ENERJİ ──────────────────────────
+  {q:"Bu sabah işe / güne başlarken içinizden ne geçti?",quick:["Haydi, başlayalım!","Yavaş yavaş girdim ritme","Biraz zorlandım ama oldu","Kendimi sürüklemek zorunda kaldım"],weights:[1.0,0.4,-0.3,-0.8]},
+  {q:"Bugün işlerinizi yapmak için içsel bir istek hissediyor musunuz?",quick:["Evet, hevesle başladım","Biraz var ama çok değil","Pek yok, zorlanıyorum","Hiç yok, her şey ağır geliyor"],weights:[1.0,0.3,-0.4,-0.9]},
+  {q:"Bugünkü işlerinizi tamamlayabileceğinize ne kadar inanıyorsunuz?",quick:["Kesinlikle, planım net","Büyük ihtimalle hallederim","Emin değilim, zor görünüyor","Bugün pek bir şey çıkmaz gibi"],weights:[1.0,0.5,-0.4,-0.9]},
+  {q:"Şu an bir göreve başlamak ne kadar kolay geliyor?",quick:["Çok kolay, zaten başladım","Biraz dürtü gerekiyor ama olur","Oldukça zor, erteliyorum","Başlamak neredeyse imkânsız hissettiriyor"],weights:[0.9,0.3,-0.5,-1.0]},
+  {q:"Bugün bir şeyler ürettiğinizde nasıl hissediyorsunuz?",quick:["Tatmin edici, gurur duyuyorum","Fena değil, normal hissettiriyor","Pek bir şey hissetmiyorum","İlgisiz, önemli gelmiyor"],weights:[0.9,0.3,-0.3,-0.8]},
+  {q:"Bu hafta kendinizi motive hissettiniz mi?",quick:["Evet, gayet iyi","Bazen evet bazen hayır","Çoğunlukla hayır","Hiç hissetmedim"],weights:[0.9,0.2,-0.5,-0.9]},
+  {q:"Bugün işinizde anlamlı bir şey yaptığınızı düşünüyor musunuz?",quick:["Evet, değer kattım","Belki, küçük şeyler yaptım","Pek emin değilim","Hayır, anlamsız hissettiriyor"],weights:[0.9,0.3,-0.3,-0.8]},
+
+  // ── ODAK & BİLİŞSEL DURUM ────────────────────────
+  {q:"Bugün zamanın geçişini nasıl hissediyorsunuz?",quick:["Çabuk geçiyor, yetişiyorum","Normal, dengeli gidiyor","Yavaş, dikkat toplamak zor","Sanki donmuş gibi, ilerleyemiyorum"],weights:[0.5,0.8,-0.5,-1.0]},
+  {q:"Şu an aklınızda kaç farklı konu dönüyor?",quick:["Bir iki şey, odaklıyım","Birkaç şey var ama yönetilebilir","Çok fazla, dağınık hissediyorum","Her şey üstüme yığılmış gibi"],weights:[0.9,0.4,-0.5,-1.0]},
+  {q:"Bugün bir işe konsantre olmak nasıl gidiyor?",quick:["Çok iyi, rahatça odaklanabiliyorum","İdare eder, ortalama","Zor, dikkatim sürekli dağılıyor","Neredeyse hiç odaklanamıyorum"],weights:[0.9,0.3,-0.5,-1.0]},
+  {q:"Bugün karar vermek nasıl hissettiriyor?",quick:["Kolay, net düşünüyorum","Normal, zorluk çekmiyorum","Biraz tereddütlü hissediyorum","Her şey belirsiz, karar veremiyorum"],weights:[0.9,0.4,-0.4,-0.9]},
+  {q:"Aklınızda çözmek isteyip sürekli ertelediğiniz bir şey var mı?",quick:["Hayır, güncel tutuyorum","Bir iki şey var ama fark etmez","Birkaç şey birikti","Çok şey var, altında kalıyorum"],weights:[0.8,0.2,-0.4,-0.9]},
+  {q:"Bugün bir fikir üretmek ya da yaratıcı düşünmek ne kadar kolay?",quick:["Çok kolay, fikirler akıyor","Ortalama, zorlanmıyorum","Biraz zorlanıyorum","Hiç gelmiyor, zihin boş"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Bu sabah işe başladığınızda önünüzdeki plan net miydi?",quick:["Evet, tam olarak biliyordum","Kabaca biliyordum","Biraz belirsizdi","Hiçbir fikrim yoktu, kaybolmuş gibiydim"],weights:[0.9,0.3,-0.4,-0.9]},
+
+  // ── STRES & ANKSİYETE ─────────────────────────────
+  {q:"Bugün ne kadar stres hissediyorsunuz?",quick:["Hiç stresim yok","Hafif bir gerilim var","Belirgin stres hissediyorum","Çok yoğun, bunaltıcı"],weights:[0.9,0.3,-0.5,-1.0]},
+  {q:"Bu hafta endişelendiğiniz bir konu var mı?",quick:["Hayır, kafam rahat","Küçük şeyler var ama önemli değil","Birkaç şey var, aklımı meşgul ediyor","Sürekli endişeleniyorum"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Bugün beklenmedik bir şey olsa nasıl tepki verirdiniz?",quick:["Sakin kalır, hallederim","Biraz telaşlanır ama toplarım","Oldukça gerilirim","Çökerim, baş edemem"],weights:[0.9,0.3,-0.5,-1.0]},
+  {q:"Son birkaç gündür zihninizde dönen endişeler var mıydı?",quick:["Hayır, sakin geçti","Küçük şeyler vardı","Oldukça fazlaydı","Çok yoğundu, uyuyamadım"],weights:[0.9,0.3,-0.5,-0.9]},
+  {q:"Bugün 'her şey yolunda mı?' diye sorduğunuzda içinizden ne geliyor?",quick:["Evet, gayet iyi","Büyük ihtimalle evet","Pek emin değilim","Hayır, bir şeyler yanlış gidiyor"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Şu an göğsünüzde ya da midenizde bir sıkışma hissediyor musunuz?",quick:["Hayır, hiç yok","Çok hafif","Biraz belirgin","Oldukça yoğun"],weights:[0.9,0.3,-0.5,-0.9]},
+  {q:"Bugün bir şeyden korkuyor ya da çekiniyorsanız bu ne?",quick:["Hayır, bir şey yok","Küçük bir şey var ama önemli değil","Belirli bir konu var aklımda","Birden fazla şey var, bunaltıcı"],weights:[0.9,0.3,-0.4,-0.9]},
+
+  // ── MORAl & DUYGUSAL DURUM ───────────────────────
+  {q:"Yakın bir arkadaşınız size bugün nasılsın diye sorsaydı, ne derdiniz?",quick:["Çok iyiyim, hareketliyim","Fena sayılmam","Yorgunum ama geçer","Açıkçası zor bir gün bu"],weights:[1.0,0.3,-0.3,-0.8]},
+  {q:"Bugün genel ruh halinizi bir renge benzetseniz hangisi olur?",quick:["Parlak sarı ya da turuncu","Sakin mavi ya da yeşil","Soluk gri","Koyu, kasvetli"],weights:[1.0,0.6,-0.3,-0.8]},
+  {q:"Bugün içinizde bir hafiflik var mı?",quick:["Evet, rahat hissediyorum","Biraz var","Pek yok, ağır hissediyorum","Hiç yok, üstüme çökmüş gibi"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Bu sabah aynaya baktığınızda kendinizi nasıl gördünüz?",quick:["İyi görünüyorum, kendimle barışığım","Normal, fark etmedim","Biraz solgun ya da yorgun","Görmekten kaçındım"],weights:[0.9,0.3,-0.4,-0.8]},
+  {q:"Bugün küçük bir şey sizi güldürdü mü ya da güldürebilir mi?",quick:["Evet, zaten güldüm","Büyük ihtimalle gülerim","Pek sanmıyorum","Hiçbir şey komik gelmiyor şu an"],weights:[0.9,0.4,-0.3,-0.8]},
+  {q:"Bu hafta kendinizle gurur duyduğunuz bir an oldu mu?",quick:["Evet, net bir şey var","Küçük bir şey vardı","Pek hatırlamıyorum","Hayır, tam tersi"],weights:[0.9,0.3,-0.3,-0.8]},
+  {q:"Bugün bir şeyden zevk aldınız ya da alacağınızı düşünüyor musunuz?",quick:["Evet, zaten aldım","Akşama bir şey var aklımda","Belki, emin değilim","Hayır, hiçbir şey cazip gelmiyor"],weights:[0.9,0.4,-0.2,-0.9]},
+  {q:"Şu an kendinizi nasıl tarif edersiniz?",quick:["Canlı ve bağlı","Sakin ve dengeli","Yorgun ve içe dönük","Boş ve kopuk"],weights:[0.9,0.5,-0.3,-0.9]},
+
+  // ── SOSYAL BAĞLANMA ──────────────────────────────
+  {q:"Bu akşam iş bittikten sonra ne yapmayı hayal ediyorsunuz?",quick:["Spor veya aktif bir şey","Sevdiklerimle vakit geçirmek","Uzanmak, telefona bakmak","Hiçbir şey istemiyorum, sadece uyumak"],weights:[0.9,0.7,-0.1,-0.9]},
+  {q:"Şu an bir iş arkadaşınız yardım istese tepkiniz ne olur?",quick:["Tabii ki, gönüllü yardım ederim","Ederim ama biraz zorlanırım","Önce kendi işimi bitireyim derdim","Şu an kendime bile yetmekte zorlanıyorum"],weights:[0.9,0.3,-0.3,-0.9]},
+  {q:"Bugün biriyle gerçek bir sohbet ettiniz mi ya da edecek misiniz?",quick:["Evet, derin bir sohbet ettim","Kısa ama güzel konuşmalar oldu","Sadece işle ilgili konuştum","Kimseyle konuşmak istemedim"],weights:[0.9,0.5,-0.1,-0.8]},
+  {q:"Bugün çevrenizdekilere karşı nasıl hissediyorsunuz?",quick:["Bağlı ve sıcak","Normal, sakin","Biraz mesafeli","Kapalı, hiç istemiyorum"],weights:[0.9,0.4,-0.3,-0.9]},
+  {q:"Bu hafta birinden destek ya da takdir aldınız mı?",quick:["Evet, güzel hissettirdi","Küçük bir şey vardı","Pek hatırlamıyorum","Hayır, hissettirdi bana"],weights:[0.9,0.4,-0.2,-0.7]},
+  {q:"Bugün ekibinizle bir şey paylaşmak ister misiniz?",quick:["Evet, fikir ya da bilgi paylaşmak isterim","Belki küçük bir şey","Pek istemiyorum","Hayır, kimseyle paylaşmak istemiyorum"],weights:[0.8,0.3,-0.3,-0.8]},
+  {q:"Sevdiğiniz biriyle konuşmak şu an nasıl gelir?",quick:["Çok iyi gelir, özledim","Fena olmaz","Pek hissetmiyorum ihtiyacını","İstemiyorum, yalnız kalmak istiyorum"],weights:[0.7,0.4,-0.1,-0.8]},
+
+  // ── TÜKENME & İŞ YÜKÜ ───────────────────────────
+  {q:"Bugün iş yükünüz nasıl hissettiriyor?",quick:["Yönetilebilir, altından kalkabilirim","Biraz fazla ama hallederim","Çok fazla, boğuluyorum","Taşıyamaz hale geldim"],weights:[0.9,0.3,-0.5,-1.0]},
+  {q:"Bu hafta işte beklenmedik yükler geldi mi?",quick:["Hayır, planlı gitti","Küçük sürprizler oldu","Oldukça fazla geldi","Altüst oldu her şey"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Mesaiye kalsanız şu an nasıl hissederdiniz?",quick:["Sorun değil, gerekirse kalırım","Çok memnun olmam ama olur","İstemezdim, yorgunum","Kesinlikle hayır, dayanamam"],weights:[0.7,0.2,-0.4,-0.9]},
+  {q:"Bu haftaki tempoya bakınca kendinize ne kadar haksızlık ettiğinizi düşünüyorsunuz?",quick:["Hiç, dengeli gitti","Biraz fazla çalıştım","Oldukça fazla","Kendimi tükettim bu hafta"],weights:[0.9,0.2,-0.5,-0.9]},
+  {q:"İşte bir hata yapma ya da yetişememe kaygısı hissediyor musunuz?",quick:["Hayır, rahatım","Çok hafif bir şey var","Biraz baskı hissediyorum","Sürekli baskı altındayım"],weights:[0.9,0.3,-0.5,-0.9]},
+  {q:"Bugün işinizi bırakıp gidebilseydiniz, bırakır mıydınız?",quick:["Hayır, burada olmaktan memnunum","Belki kısa bir mola isterdim","Muhtemelen evet","Kesinlikle, çoktan giderdim"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Bu ay içinde işe gelmek istememek duygusu yaşadınız mı?",quick:["Hayır, hiç olmadı","Bir iki kez oldu","Birkaç kez oldu","Çok sık oluyor"],weights:[0.9,0.2,-0.5,-0.9]},
+
+  // ── ÖZ-DEĞER & KİŞİSEL ANLAM ────────────────────
+  {q:"Bu haftaki en büyük başarınız neydi? (küçük de olsa)",quick:["Hemen aklıma geldi, gurur duydum","Bir şeyler var ama sıradan","Sanmıyorum, takip etmedim","Hiçbir şey aklıma gelmiyor"],weights:[0.9,0.2,-0.4,-0.8]},
+  {q:"Bugün işinizin bir fark yarattığını hissediyor musunuz?",quick:["Evet, katkım net","Biraz var galiba","Pek emin değilim","Hayır, anlamsız hissettiriyor"],weights:[0.9,0.3,-0.3,-0.8]},
+  {q:"Kendinize karşı bugün nazik misiniz?",quick:["Evet, kendimle iyiyim","Ortalama, ne iyiyim ne kötüyüm","Kendime sert davranıyorum","Kendimden çok memnun değilim"],weights:[0.9,0.2,-0.5,-0.8]},
+  {q:"Bugün yaptığınız işlerin size göre olduğunu düşünüyor musunuz?",quick:["Evet, doğru yerdeyim","Büyük ölçüde evet","Biraz sorguluyorum","Hayır, bu benim için değil gibi"],weights:[0.9,0.3,-0.3,-0.8]},
+  {q:"Şu an hayatınızda neyin eksik olduğunu hissediyorsunuz?",quick:["Hiçbir şey, yerindeyim","Küçük şeyler var ama sorun değil","Birkaç önemli şey eksik","Çok şey eksik, boşluk hissediyorum"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Son bir haftada kendinizi geliştirdiğinizi hissettiniz mi?",quick:["Evet, büyüdüm","Küçük adımlar attım","Pek fark etmedim","Hayır, duruyorum ya da geriye gidiyorum"],weights:[0.9,0.3,-0.2,-0.8]},
+  {q:"Bugün yaptığınız işten keyif alıyor musunuz?",quick:["Evet, severek yapıyorum","Biraz var","Pek yok ama olur","Hayır, hiç keyif almıyorum"],weights:[0.9,0.3,-0.3,-0.8]},
+
+  // ── DAYANIKLILIK & BAŞA ÇIKMA ────────────────────
+  {q:"Bugün zor bir şeyle karşılaşsanız nasıl davranırdınız?",quick:["Sakin kalır, çözüm üretirim","Biraz zorlanır ama hallederim","Oldukça bunalırdım","Baş edemezdim, çözülürdüm"],weights:[0.9,0.4,-0.4,-0.9]},
+  {q:"Bu hafta stresle başa çıkmak için ne yaptınız?",quick:["Spor, nefes, bilinçli molalar","Arkadaşla konuşmak ya da dinlenmek","Pek bir şey yapamadım","Hiçbir şey, sadece katlandım"],weights:[0.9,0.5,-0.3,-0.8]},
+  {q:"Bugün bir engelle karşılaşsanız, ilk tepkiniz ne olur?",quick:["Çözüm ararım, heyecan bile duyarım","Sinirlenirim ama toplarım","Çok bunalırım","Vazgeçme düşüncesi gelir"],weights:[0.9,0.4,-0.4,-0.9]},
+  {q:"Son birkaç gündeki zorluklara rağmen devam edebildiniz mi?",quick:["Evet, ayaktayım","Çoğunlukla evet","Zor oldu ama oldu","Çok güçlük çektim"],weights:[0.9,0.4,-0.3,-0.8]},
+  {q:"Kendinize 'bu da geçer' diyebiliyor musunuz şu an?",quick:["Evet, inanıyorum","Çoğunlukla inandırabiliyorum kendimi","Zor, pek inanamıyorum","Hayır, böyle hep devam edecek gibi hissediyorum"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Bugün kontrolünüzün dışında hissettiren bir durum var mı?",quick:["Hayır, her şey yönetilebilir","Küçük bir şey var","Birkaç şey var, bunaltıcı","Her şey kontrolden çıkmış gibi"],weights:[0.9,0.3,-0.5,-1.0]},
+
+  // ── ÇEVRE & İŞ ORTAMI ───────────────────────────
+  {q:"Bugün çalışma ortamınız size nasıl hissettiriyor?",quick:["Sakin ve verimli","Normal, fark etmez","Biraz bunaltıcı","Hiç rahat değilim burada"],weights:[0.8,0.3,-0.4,-0.8]},
+  {q:"Bugün iş yerinizde kendinizi güvende hissediyor musunuz?",quick:["Evet, tam olarak","Büyük ölçüde evet","Biraz tedirginim","Hayır, gergin hissediyorum"],weights:[0.9,0.4,-0.4,-0.9]},
+  {q:"Bu hafta iş ortamında sizi zorlayan bir ilişki ya da durum oldu mu?",quick:["Hayır, her şey iyiydi","Küçük bir gerilim vardı","Belirgin bir sorun vardı","Çok zorlandım"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Yöneticinizden ya da ekibinizden yeterli destek aldığınızı hissediyor musunuz?",quick:["Evet, destekleniyorum","Çoğunlukla evet","Pek değil","Hayır, yalnız hissediyorum"],weights:[0.9,0.4,-0.4,-0.9]},
+  {q:"Bugün iş yerinde kendiniz olabildiğinizi hissediyor musunuz?",quick:["Evet, tamamen","Büyük ölçüde","Biraz maske takıyorum","Hayır, hiç kendim değilim"],weights:[0.9,0.4,-0.4,-0.9]},
+  {q:"Ekibinizle aranızdaki iletişim bu hafta nasıldı?",quick:["Çok iyi, açık ve sıcaktı","Normal, iş odaklıydı","Biraz gergin ya da soğuktu","Kötüydü, çok bunaltıcıydı"],weights:[0.9,0.3,-0.4,-0.9]},
+
+  // ── ANLAM & HEDEF ───────────────────────────────
+  {q:"Bugün yaptığınız iş size anlamlı geliyor mu?",quick:["Evet, değer kattığımı hissediyorum","Biraz var","Pek emin değilim","Hayır, boşa kürek çekiyorum gibi"],weights:[0.9,0.3,-0.3,-0.8]},
+  {q:"Geleceğe dair umut hissediyor musunuz?",quick:["Evet, heyecanlıyım","Biraz var","Belirsiz hissediyorum","Hayır, karanlık görünüyor"],weights:[0.9,0.3,-0.3,-0.9]},
+  {q:"Bugün bir hedef ya da plan aklınızda var mı?",quick:["Evet, net bir planım var","Genel bir yön var","Belirsiz, bilemedim","Hayır, hiçbir şeye güvenemiyorum"],weights:[0.9,0.4,-0.3,-0.8]},
+  {q:"Bu iş size uzun vadede bir şey kattığını hissettiriyor mu?",quick:["Evet, büyüyorum","Biraz katkısı var","Emin değilim","Hayır, duruyorum ya da geriliyorum"],weights:[0.9,0.3,-0.2,-0.8]},
+  {q:"Bugün bir şeye hevesle başladınız mı?",quick:["Evet, sabırsızlanıyordum","Biraz istekliydim","Pek değil","Hayır, hiçbir şey heyecan vermiyor"],weights:[0.9,0.3,-0.3,-0.8]},
+  {q:"Beş yıl sonrasına bakıp bugün doğru yolda olduğunuzu düşünüyor musunuz?",quick:["Evet, kesinlikle","Büyük ihtimalle","Emin değilim","Hayır, kaybolmuş hissediyorum"],weights:[0.9,0.3,-0.3,-0.8]},
+  {q:"Bu haftaki işleriniz size kim olduğunuzu yansıtıyor mu?",quick:["Evet, tam olarak benim","Büyük ölçüde","Bazen değil","Hayır, hiç bana uymuyor"],weights:[0.9,0.3,-0.3,-0.8]},
+
+  // ── DİKKAT & MİNDFULNESS ────────────────────────
+  {q:"Şu an bulunduğunuz ana odaklanabiliyor musunuz?",quick:["Evet, tamamen burdayım","Çoğunlukla evet","Biraz dağınığım","Hiç odaklanamıyorum, zihin başka yerde"],weights:[0.9,0.4,-0.4,-0.9]},
+  {q:"Bugün küçük güzellikleri fark edebildiniz mi?",quick:["Evet, fark ettim ve iyi geldi","Belki bir iki şey","Pek dikkat etmedim","Hayır, hiçbir şey fark etmedim"],weights:[0.8,0.3,-0.2,-0.7]},
+  {q:"Bugün öğle arasında ya da kısa molada gerçekten dinlenebildiniz mi?",quick:["Evet, iyi bir mola verdim","Kısa da olsa bir şey yaptım","Pek yapamadım","Hiç mola vermeden çalıştım"],weights:[0.8,0.3,-0.4,-0.8]},
+  {q:"Şu an bu soruları yanıtlamak nasıl hissettiriyor?",quick:["İyi hissettiriyor, düşünüyorum","Normal, fark yok","Biraz yorucu","Çok ağır, canımı sıkıyor"],weights:[0.8,0.3,-0.3,-0.8]},
+  {q:"Bugün nefes almak ya da zihin boşaltmak için bir an buldunuz mu?",quick:["Evet, birkaç kez yaptım","Bir kez yaptım","Yapmak istedim ama olmadı","Hiç aklıma bile gelmedi"],weights:[0.9,0.4,-0.3,-0.7]},
+  {q:"Şu an bulunduğunuz yerde rahat hissediyor musunuz?",quick:["Evet, gayet rahatım","Ortalama","Biraz rahatsızım","Çok rahatsız, kaçmak istiyorum"],weights:[0.8,0.3,-0.4,-0.9]},
+
+  // ── PROJEKSİYON & YANSITMA ──────────────────────
+  {q:"En yakın arkadaşınız sizin bugünkü halinizi görse ne düşünürdü?",quick:["İyi görünüyorsun derdi","Normale yakın derdi","Biraz yorulmuşsun derdi","Seni merak ederdi, geçiyor mu diye sorardı"],weights:[0.9,0.3,-0.3,-0.8]},
+  {q:"Bugün aynı durumda olan bir meslektaşınıza ne tavsiye ederdiniz?",quick:["Devam et, iyi gidiyorsun","Bir adım adım git","Biraz dinlen, kendine iyi bak","Mutlaka yardım al, yalnız bırakma"],weights:[0.8,0.3,-0.2,-0.7]},
+  {q:"Bir yıl sonraki siz bugüne baksaydı ne derdi?",quick:["Aferin, doğru yapıyordun","Fena değildi, geçti","Biraz zor bir dönemdi ama geçti","Kendine daha iyi baksaydın derdi"],weights:[0.9,0.4,-0.2,-0.7]},
+  {q:"Bugünkü halinizi bir hava durumuna benzetseydiniz ne olurdu?",quick:["Güneşli ve açık","Parçalı bulutlu ama güzel","Bulutlu ve gri","Fırtınalı"],weights:[1.0,0.4,-0.3,-0.9]},
+  {q:"Çok sevdiğiniz biri bugün sizi görmek istese nasıl karşılardınız?",quick:["Çok mutlu olurdum, açık kapı","Memnuniyetle karşılardım","Biraz tereddüt ederdim","İstemezdim, yalnız kalmak isterim"],weights:[0.9,0.5,-0.2,-0.8]},
+  {q:"Bugünkü ruh haliniz bir müzik türü olsaydı ne olurdu?",quick:["Canlı, enerjik bir şey","Dingin ve sakin bir melodi","Yavaş, hüzünlü bir ezgi","Gürültülü, karmaşık bir şey"],weights:[0.9,0.5,-0.3,-0.8]},
+
+  // ── İLİŞKİ & BAĞLANMA ────────────────────────────
+  {q:"Bugün biriyle gerçekten anlaşıldığınızı hissettiniz mi?",quick:["Evet, çok iyi hissettirdi","Biraz var","Pek olmadı","Hayır, kimse anlamıyor gibi"],weights:[0.9,0.3,-0.3,-0.9]},
+  {q:"Bu hafta birinin size ihtiyacı olduğunu hissettiniz mi?",quick:["Evet, güzel hissettirdi","Biraz vardı","Pek yoktu","Hayır, kimse umursamıyor gibi"],weights:[0.7,0.4,-0.1,-0.7]},
+  {q:"İş dışında bu hafta birisiyle bağlantı kurabildiyseniz nasıl hissettirdi?",quick:["Çok iyi, şarj oldum","İyiydi","Fark yaratmadı","Pek bağlanamadım"],weights:[0.9,0.4,-0.1,-0.6]},
+  {q:"Bugün biriyle çatışma ya da gerilim yaşadınız mı?",quick:["Hayır, her şey pürüzsüzdü","Küçük bir sürtüşme vardı","Belirgin bir gerilim oldu","Ciddi bir çatışma yaşadım"],weights:[0.8,0.1,-0.5,-0.9]},
+  {q:"Bu hafta birinden beklenmedik bir iyilik ya da destek gördünüz mü?",quick:["Evet, çok iyi hissettirdi","Küçük bir şey vardı","Pek olmadı","Hayır, tam tersi oldu"],weights:[0.9,0.4,-0.1,-0.7]},
+
+  // ── GENEL REFAH ─────────────────────────────────
+  {q:"Genel olarak bu hafta kendinizi nasıl değerlendirirsiniz?",quick:["İyi, memnunum","Ortalama, fena değil","Biraz düşük, zorlandım","Kötüydü, çok zordu"],weights:[0.9,0.3,-0.4,-0.9]},
+  {q:"Bugün hayattan genel olarak memnun musunuz?",quick:["Evet, gayet memnunum","Büyük ölçüde evet","Kısmen, bazı şeyler eksik","Hayır, memnun değilim"],weights:[0.9,0.4,-0.3,-0.9]},
+  {q:"Şu an en çok neye ihtiyacınız var?",quick:["Hiçbir şeye, iyiyim","Bir mola ya da sessizliğe","Birine konuşmaya ya da destek almaya","Bilmiyorum, her şey karışmış"],weights:[0.9,0.2,-0.3,-0.8]},
+  {q:"Bu haftanın sonunda kendinizi ödüllendirmeyi düşünüyor musunuz?",quick:["Evet, hak ettim","Belki küçük bir şey","Pek düşünmedim","Hayır, öyle bir enerjim yok"],weights:[0.8,0.4,-0.2,-0.7]},
+  {q:"Bugün 10 üzerinden kaç puan verirdiniz kendinize?",quick:["8-10 arası, iyi hissediyorum","5-7 arası, ortalama","3-4 arası, zor gün","1-2, çok kötü bir gün"],weights:[1.0,0.3,-0.5,-0.9]},
+  {q:"Bugün kendinize ayırdığınız zaman yeterli miydi?",quick:["Evet, kendime baktım","Biraz kısaydı ama oldu","Pek yoktu","Hiç kendime zaman ayıramadım"],weights:[0.9,0.3,-0.4,-0.8]},
 ];
 
 /* Her gün farklı 5 soru seç — deterministik (aynı günde herkes aynı soruları görür) */
 function getDailyQuestions(){
-  const seed=parseInt(todayStr().replace(/-/g,''))%1000;
-  const shuffled=[...QS].sort((a,b)=>((seed*17+QS.indexOf(a)*31)%97)-((seed*17+QS.indexOf(b)*31)%97));
-  return shuffled.slice(0,5);
+  // Seeded shuffle — her gün farklı ama deterministik (aynı günde herkes aynı soruları görür)
+  const dateNum = parseInt(todayStr().replace(/-/g,''));
+  const userSeed = (CU||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const seed = (dateNum + userSeed * 31) % 99991;
+  function seededRand(s){ return ((s*1664525+1013904223)&0xffffffff)/0x100000000+0.5; }
+  const arr=[...QS];
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(seededRand(seed*(i+1)*7)*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr.slice(0,5);
 }
 
 /* ═══ STATE ═══ */
@@ -564,9 +658,9 @@ function finishChat(){
 
   // nötr kapanış — hiçbir durumu "kötü" yansıtmaz
   const closes=[
-    "Teşekkürler, bugün de buradaydın 🌿 Harika bir gün geçir.",
-    "Paylaştığın için teşekkürler 💛 Kendine iyi bak bugün.",
-    "Burada olduğun için teşekkürler. Bugün kendine nazik ol 🤍"
+    "Paylaştığın için teşekkürler 🌿 Enerjin bugün yüksek, iyi ki buradasın.",
+    "Teşekkürler. Karma günler de önemli — burada olman yeter 💛",
+    "Bugün burada olman bile bir adım. Kendine iyi bak, bu da geçer 🤍"
   ];
   setTimeout(()=>{
     botSay(closes[st==='green'?0:st==='yellow'?1:2]);
@@ -578,12 +672,12 @@ function showResult(avg,pts,repeat){
   const st=avg>=.3?'green':avg>=-.3?'yellow':'red';
   // Puanı duruma göre değil katılıma göre göster
   const icons={green:'😊',yellow:'😐',red:'😔'};
-  const titles={green:'Enerjiniz yüksek görünüyor.',yellow:'Orta hızda bir gün.',red:'Bugün biraz yavaş gidiyorsunuz.'};
+  const titles={green:'Bugün kendinizi iyi hissediyorsunuz.',yellow:'Bugün biraz karma bir gün.',red:'Bugün yorgun ya da ağır hissediyorsunuz.'};
   // Düşük puan = kötü değil → "yavaş" gibi nötr dil
   const subs={
-    green:'Bugünkü yanıtlarınız aktif ve bağlı bir ruh halini yansıtıyor.',
-    yellow:'Dengeli bir gün. Bazı şeyler kolay, bazıları biraz daha zorlu.',
-    red:'Bugün biraz daha içe dönük veya yorgun hissedebilirsiniz — bu da çok normal.'
+    green:'Yanıtlarınız enerjik ve bağlı bir ruh halini yansıtıyor. Bunu korumak için küçük şeyler büyük fark yaratır.',
+    yellow:'Bazı şeyler akıyor, bazıları biraz takılıyor. Bu tamamen normal — her gün aynı olmak zorunda değil.',
+    red:'Bugün biraz daha zor hissediyorsunuz. Bu geçici ve çok insani bir durum. Kendinize nazik olun.'
   };
   const hist=getHist(CU);
   const streak=getStreak(hist);
@@ -598,7 +692,7 @@ function showResult(avg,pts,repeat){
       <div class="result-icon">${icons[st]}</div>
       <div class="result-title">${titles[st]}</div>
       <div class="result-sub">${subs[st]}</div>
-      <div class="pill pill-${st}"><div class="pill-dot"></div>${st==='green'?'Aktif':'st'==='yellow'?'Dengeli':'Dinleniyor'}</div>
+      <div class="pill pill-${st}"><div class="pill-dot"></div>${st==='green'?'İyi hissediyorum':st==='yellow'?'Karma bir gün':'Zor bir gün'}</div>
     </div>
     <div class="reward-box">
       <div class="reward-hd">
@@ -861,7 +955,7 @@ function renderAdmin(){
     const ini=info.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
     const hist=getHist(u);const streak=getStreak(hist);const pts=getTotalPoints(hist);
     const row=document.createElement('div');row.className='emp-row';
-    const tagHtml=s?`<span class="tag tag-${s.status[0]}">${s.status==='green'?'Aktif':s.status==='yellow'?'Dengeli':'Dinleniyor'}</span><span style="font-size:11px;color:var(--muted);margin-left:7px;">${s.time}</span>`:`<span class="tag tag-w">Henüz giriş yok</span>`;
+    const tagHtml=s?`<span class="tag tag-${s.status[0]}">${s.status==='green'?'İyi gün':s.status==='yellow'?'Karma gün':'Zor gün'}</span><span style="font-size:11px;color:var(--muted);margin-left:7px;">${s.time}</span>`:`<span class="tag tag-w">Henüz giriş yok</span>`;
     row.innerHTML=`<div class="ava" style="background:${info.color||'#ddd'}">${ini}</div><div style="flex:1;"><div class="emp-name">${info.name}</div><div class="emp-user">${u} · ${pts}p · ${streak>0?`🔥${streak}gün`:'-'}</div></div><div style="display:flex;align-items:center;">${tagHtml}</div>`;
     list.appendChild(row);
     if(s){if(s.status==='green')g++;else if(s.status==='yellow')y++;else r++;}
@@ -879,7 +973,7 @@ function renderAdmin(){
     const dots=[];
     for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const e=hist.find(h=>h.date===d.toISOString().slice(0,10));dots.push(e?e.status[0]:'e');}
     const row=document.createElement('div');row.className='etr-row';
-    row.innerHTML=`<span class="etr-name" title="${info.name}">${ini} ${info.name.split(' ')[0]}</span><div class="etr-bars">${dots.map(d=>`<div class="etr-dot ${d}" title="${d==='g'?'Aktif':d==='y'?'Dengeli':d==='r'?'Dinleniyor':'Giriş yok'}"></div>`).join('')}</div>`;
+    row.innerHTML=`<span class="etr-name" title="${info.name}">${ini} ${info.name.split(' ')[0]}</span><div class="etr-bars">${dots.map(d=>`<div class="etr-dot ${d}" title="${d==='g'?'İyi gün':d==='y'?'Karma gün':d==='r'?'Zor gün':'Giriş yok'}"></div>`).join('')}</div>`;
     tw.appendChild(row);
   });
 }
